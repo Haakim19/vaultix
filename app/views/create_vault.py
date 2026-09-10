@@ -31,25 +31,20 @@ def validate_data(window):
     password = window.passwordInput.text()
     confirm_password = window.confirmPasswordInput.text()
 
-    
-    if vault_name.strip() == "":
-        show_message(window, "Vault name is empty")
-        return
-    elif password == "":
-        show_message(window, "Password is empty")
-        return
-    elif len(password) < 8:
-        show_message(window, "Password lenght is not 8 charecters")
-        return
-    elif confirm_password == "":
-        show_message(window, "Confim password is empty")
+    error =(
+        "Vault name is empty" if not vault_name else
+        "Password is empty" if not password else
+        "Password lenght is not 8 charecters" if len(password) < 8 else
+        "Confirm password is empty" if not confirm_password else
+        "Password is not same" if confirm_password != password else None
+    )
+    if error:
+        show_message(window, error)
         return
         
-    elif password != confirm_password:
-        show_message(window, "Password is not same")
-        return
     show_message(window, "All ok, vault creaded")
     clear_fields(window)
+
 def show_message(window, message):
     QMessageBox.information(
         window,
@@ -60,4 +55,4 @@ def show_message(window, message):
 def clear_fields(window):
     window.vaultNameInput.clear()
     window.passwordInput.clear()
-    window.confirmPassword1kInput.clear()
+    window.confirmPasswordInput.clear()
