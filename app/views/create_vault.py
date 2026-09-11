@@ -32,7 +32,7 @@ def validate_data(window):
     confirm_password = window.confirmPasswordInput.text()
 
     error =(
-        "Vault name is empty" if not vault_name else
+        "Vault name is empty" if not vault_name.strip() else
         "Password is empty" if not password else
         "Password lenght is not 8 charecters" if len(password) < 8 else
         "Confirm password is empty" if not confirm_password else
@@ -42,7 +42,7 @@ def validate_data(window):
         show_message(window, error)
         return
         
-    show_message(window, "All ok, vault creaded")
+    show_message(window, "Validation successful")
     clear_fields(window)
 
 def show_message(window, message):
