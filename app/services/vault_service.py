@@ -1,13 +1,12 @@
-from app.database.database import SessionLocal
 from app.models.models import Vault
 from app.security.crypto import(
     generate_salt,
     derive_key,
-    encrypt_data
+    encrypt_data,
+    decrypt_data
 )
 
-
-def create_vault(vault_name, master_password):
+def create_vault(vault_name : str, master_password: str, db) -> Vault:
     # generate the salt
     salt = generate_salt()
     
@@ -27,16 +26,26 @@ def create_vault(vault_name, master_password):
         verification_nonce = nonce
     )
     
-    with SessionLocal() as db:
-        try:
-            db.add(vault)
-            db.commit()
-            db.refresh(vault)
-            db.expunge(vault)
-            return vault
-        except Exception:
-            db.rollback()
-            raise
-        
-def unlock_vault():
-    pass
+    try:
+        db.add(vault)
+        db.commit()
+        db.refresh(vault)
+        db.expunge(vault)
+        return vault
+    except Exception:
+        db.rollback()
+        raise
+
+def unlock_vault(vault, master_password):
+    new_vault_key = derive_key(master_password, vault.salt)
+    
+    # decrypt the varification data using the vault key created with user password
+    try:
+        decrypted_data = decrypt_data(
+            vault.encrypted_verification,
+            vault.verification_nonce,
+            new_vault_key
+        )
+        return decrypted_data == "VAULTIX_VERIFICATION"
+    except Exception:
+        return False
