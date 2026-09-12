@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, select
-from app.database.database import Base, Vault
+from app.database.database import Base
+from app.models.models import Vault
 
 
 engine = create_engine("sqlite://")
