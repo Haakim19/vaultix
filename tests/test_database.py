@@ -13,7 +13,7 @@ testSession = sessionmaker(engine)
 
 def test_vault():
     now = datetime.now(timezone.utc)
-    with testSession() as session:
+    with SessionLocal() as session:
         with session.begin():
             vault = Vault(  name = "test", 
                             salt = b"salt",
@@ -25,14 +25,14 @@ def test_vault():
             session.flush()
             pid = vault.vault_id
             
-    with testSession() as session:
+    with SessionLocal() as session:
         with session.begin():
             vault = session.get(Vault, pid)
             assert vault.name == "test" and vault.salt == b"salt"
             session.delete(vault)
         
     
-    with testSession() as session:
+    with SessionLocal() as session:
         assert session.scalar(select(Vault)) is None
     
     print("✅ passed")
