@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, select
-from app.database.database import Base
+from app.database.database import Base, SessionLocal
 from app.models.models import Vault
 
 

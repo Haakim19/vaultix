@@ -42,6 +42,5 @@ def main ():
         print("✅ Encryption test PASSED!")
     else:
         print("❌ Encryption test FAILED!")
-        
 if __name__ == "__main__":
     main()
