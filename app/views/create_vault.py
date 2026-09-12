@@ -14,7 +14,7 @@ def load_ui(filename):
     return None
 
 
-def main():
+def main_vault_creation():
 
     window = load_ui("ui/create_vault.ui")
 
