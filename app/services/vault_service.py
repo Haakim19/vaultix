@@ -1,11 +1,11 @@
+from app.database.database import SessionLocal
+from app.models.models import Vault
 from app.security.crypto import(
     generate_salt,
     derive_key,
     encrypt_data
 )
-from datetime import datetime, timezone
-from app.database.database import SessionLocal
-from app.models.models import Vault
+
 
 def create_vault(vault_name, master_password):
     # generate the salt
@@ -37,3 +37,6 @@ def create_vault(vault_name, master_password):
         except Exception:
             db.rollback()
             raise
+        
+def unlock_vault():
+    pass
