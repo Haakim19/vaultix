@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import LargeBinary, DateTime, String, ForeignKey
 from app.database.database import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from datetime import datetime, timezone
+from sqlalchemy import LargeBinary, DateTime, String, ForeignKey
 
 #? vault table
 class Vault(Base):
@@ -29,7 +29,7 @@ class Vault(Base):
     )
     credentials: Mapped[list["Credential"]] = relationship(
         back_populates="vault",
-        cascade= "all, delete-onrphan"
+        cascade= "all, delete-orphan"
     )
 
 #? Category table
@@ -42,7 +42,7 @@ class Category(Base):
         nullable= False
     )
     name : Mapped[str] = mapped_column(String(50), nullable=False)
-    description : Mapped[str | None] = mapped_column(String(255), nullable=False)
+    description : Mapped[str | None] = mapped_column(String(255), nullable=True)
 
 #! Relationship
     vault: Mapped["Vault"] = relationship(back_populates="categories")
