@@ -9,3 +9,5 @@ python.toml
 .python-version
 # Virtual environments
 .venv
+# database file
+vaultix.db
