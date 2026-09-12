@@ -12,14 +12,20 @@
   </property>
   <property name="font">
    <font>
-    <family>Comfortaa</family>
-    <pointsize>16</pointsize>
+    <family>Sans Serif</family>
+    <pointsize>10</pointsize>
    </font>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="font">
+    <font>
+     <family>Sans Serif</family>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
@@ -30,6 +36,12 @@
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="leftMargin">
+      <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
      <item>
       <spacer name="verticalSpacer_3">
        <property name="orientation">
@@ -78,22 +90,22 @@
      <item>
       <layout class="QFormLayout" name="formLayout">
        <property name="horizontalSpacing">
-        <number>20</number>
+        <number>10</number>
        </property>
        <property name="verticalSpacing">
-        <number>10</number>
+        <number>5</number>
        </property>
        <property name="leftMargin">
         <number>15</number>
        </property>
        <property name="topMargin">
-        <number>20</number>
+        <number>10</number>
        </property>
        <property name="rightMargin">
         <number>15</number>
        </property>
        <property name="bottomMargin">
-        <number>0</number>
+        <number>10</number>
        </property>
        <item row="0" column="0">
         <widget class="QLabel" name="vaultName">
@@ -211,7 +223,7 @@
      <x>0</x>
      <y>0</y>
      <width>500</width>
-     <height>33</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
