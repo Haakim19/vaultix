@@ -1,3 +1,4 @@
+from app.database.database import SessionLocal
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
@@ -37,9 +38,9 @@ def validate_data(window):
     error =(
         "Vault name is empty" if not vault_name.strip() else
         "Password is empty" if not password else
-        "Password must be at least 8 charecters" if len(password) < 8 else
+        "Password must be at least 8 characters" if len(password) < 8 else
         "Confirm password is empty" if not confirm_password else
-        "Password is not same" if confirm_password != password else 
+        "Password do not match" if confirm_password != password else 
         None
     )
     if error:
@@ -47,13 +48,14 @@ def validate_data(window):
         return
     # Save to Database 
     try:
-        created_vault = create_vault(vault_name, password)
+        with SessionLocal() as db:
+            created_vault = create_vault(vault_name, password, db)
         # show success message 
         show_message(window, f"Vault '{created_vault.name}' created successfully!")
         clear_fields(window)
     except Exception as e:
-        # Handle database error gracfully
-        show_message(window, f"Faild to create vault {e}", is_error= True)
+        # Handle database error gracefully
+        show_message(window, f"Failed to create vault {e}", is_error= True)
 
 def show_message(window, message, is_error = False):
     if is_error:
