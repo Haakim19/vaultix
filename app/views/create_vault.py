@@ -1,19 +1,7 @@
 from app.database.database import SessionLocal
 from PySide6.QtWidgets import QMessageBox
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QFile
 from app.services.vault_service import create_vault
-
-def load_ui(filename):
-    loader = QUiLoader()
-    ui_file = QFile(filename)
-
-    if ui_file.open(QFile.ReadOnly):
-        window = loader.load(ui_file)
-        ui_file.close()
-        return window
-    return None
-
+from app.utils.ui_loader import load_ui, show_message
 
 def main_vault_creation():
 
@@ -56,12 +44,6 @@ def validate_data(window):
     except Exception as e:
         # Handle database error gracefully
         show_message(window, f"Failed to create vault {e}", is_error= True)
-
-def show_message(window, message, is_error = False):
-    if is_error:
-        QMessageBox.warning(window, "Vaultix", message)
-    else:
-        QMessageBox.information(window, "Vaultix", message)
 
 def clear_fields(window):
     window.vaultNameInput.clear()
