@@ -2,7 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database.database import Base
 from app.models.models import Vault
-from app.services.vault_service import unlock_vault, create_vault
+from app.services.vault_service import (unlock_vault, 
+                                        create_vault, 
+                                        get_vault_by_id)
 
 engine = create_engine("sqlite://")
 
@@ -17,6 +19,15 @@ def test_create_vault():
     with testSession() as db:
         created_test_vault = create_vault(vault_name, password, db)
     print(f"vault '{vault_name}' created")
+
+    found_vault = get_vault_by_id(
+        created_test_vault.vault_id,
+        db
+    )
+    
+    assert found_vault is not None
+    assert found_vault.name == vault_name
+    print(f"✅ Found the vault '{vault_name}'")
 
     result = unlock_vault(created_test_vault, password)
     assert result is True
