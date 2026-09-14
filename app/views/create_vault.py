@@ -1,5 +1,4 @@
 from app.database.database import SessionLocal
-from PySide6.QtWidgets import QMessageBox
 from app.services.vault_service import create_vault
 from app.utils.ui_loader import load_ui, show_message
 
@@ -37,8 +36,9 @@ def validate_data(window):
     # Save to Database 
     try:
         with SessionLocal() as db:
-            created_vault = create_vault(vault_name, password, db)
+            created_vault = create_vault(db,vault_name, password)
         # show success message 
+
         show_message(window, f"Vault '{created_vault.name}' created successfully!")
         clear_fields(window)
     except Exception as e:
