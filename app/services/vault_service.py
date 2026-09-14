@@ -1,67 +1,70 @@
-from app.models.models import Vault
 from sqlalchemy import select
-from app.security.crypto import(
+from app.models.models import Vault
+from app.security.crypto import (
     generate_salt,
     derive_key,
     encrypt_data,
-    decrypt_data
+    decrypt_data,
 )
 
-def create_vault(vault_name : str, master_password: str, db) -> Vault:
-    # generate the salt
-    salt = generate_salt()
-    
-    # generate vault key
-    vault_key = derive_key(master_password, salt)
-    
-    # encrypting the verification data using the vault key
-    ciphertext, nonce = encrypt_data(
-        "VAULTIX_VERIFICATION",
-        vault_key
-    )
-    
-    vault = Vault(
-        name = vault_name,
-        salt = salt,
-        encrypted_verification = ciphertext,
-        verification_nonce = nonce
-    )
-    
-    try:
-        db.add(vault)
-        db.commit()
-        db.refresh(vault)
-        db.expunge(vault)
-        return vault
-    except Exception:
-        db.rollback()
-        raise
+VERIFICATION_PLAINTEXT = "VAULTIX_VERIFICATION"
 
-def unlock_vault(vault, master_password):
-    new_vault_key = derive_key(master_password, vault.salt)
-    
-    # decrypt the verification data using the vault key created with user password
+def any_vault_exist(db) -> bool:
+    return db.execute(
+        select(Vault.vault_id).limit(1)
+    ).first() is not None
+
+
+def create_vault(   db, 
+                    vault_name: str, 
+                    master_password: str
+                    ) -> tuple[Vault, bytes]:
+    salt = generate_salt()
+    vault_key = derive_key(master_password, salt)
+    ciphertext, nonce = encrypt_data(VERIFICATION_PLAINTEXT, vault_key)
+
+    vault = Vault(
+        name=vault_name,
+        salt=salt,
+        encrypted_verification=ciphertext,
+        verification_nonce=nonce,
+    )
+    db.add(vault)
+    db.commit()
+    db.refresh(vault)
+    db.expunge(vault)
+    return vault, vault_key
+
+
+def unlock_vault(vault: Vault, master_password: str) -> bytes | None:
+    candidate_key = derive_key(master_password, vault.salt)
     try:
-        decrypted_data = decrypt_data(
+        decrypted = decrypt_data(
             vault.encrypted_verification,
             vault.verification_nonce,
-            new_vault_key
+            candidate_key,
         )
-        if decrypted_data == "VAULTIX_VERIFICATION":
-            return new_vault_key
-        else:
-            return None
     except Exception:
-        return False
+        return None
+
+    if decrypted == VERIFICATION_PLAINTEXT:
+        return candidate_key
+    return None
+
 
 def get_vaults(db):
-        vaults = db.execute(select(Vault).order_by(Vault.vault_id)).scalars().all()
-        for vault in vaults:
-            db.expunge(vault)
-        return vaults
+    vaults = db.execute(
+        select(Vault).order_by(Vault.vault_id)
+    ).scalars().all()
+    for vault in vaults:
+        db.expunge(vault)
+    return vaults
 
-def get_vault_by_id(vault_id, db):
-    result = db.execute(
+
+def get_vault_by_id(db, vault_id: int) -> Vault | None:
+    vault = db.execute(
         select(Vault).where(Vault.vault_id == vault_id)
-    )
-    return result.scalar_one_or_none()
+    ).scalar_one_or_none()
+    if vault is not None:
+        db.expunge(vault)
+    return vault
