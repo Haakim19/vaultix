@@ -40,14 +40,17 @@ def create_vault(vault_name : str, master_password: str, db) -> Vault:
 def unlock_vault(vault, master_password):
     new_vault_key = derive_key(master_password, vault.salt)
     
-    # decrypt the varification data using the vault key created with user password
+    # decrypt the verification data using the vault key created with user password
     try:
         decrypted_data = decrypt_data(
             vault.encrypted_verification,
             vault.verification_nonce,
             new_vault_key
         )
-        return decrypted_data == "VAULTIX_VERIFICATION"
+        if decrypted_data == "VAULTIX_VERIFICATION":
+            return new_vault_key
+        else:
+            return None
     except Exception:
         return False
 
