@@ -1,7 +1,7 @@
 from app.database.database import SessionLocal
-from PySide6.QtWidgets import QMessageBox
 from app.utils.ui_loader import load_ui, show_message
 from app.services.vault_service import unlock_vault, get_vaults, get_vault_by_id
+from app.session.session import VaultSession
 
 def login_window():
     window = load_ui("ui/login.ui")
@@ -36,10 +36,13 @@ def validate_login_data(window):
         with SessionLocal() as db:
             found_vault = get_vault_by_id(vault_id, db)
 
-        result = unlock_vault(found_vault, master_password)
+        vault_key = unlock_vault(found_vault, master_password)
 
-        if result:
-            show_message(window,"✅ Correct password: vault unlocked!")
+        if vault_key is not None:
+            session = VaultSession(found_vault, vault_key)
+            
+            print("Vault: ",session.vault.name)
+            print("Vault_key: ", session.vault_key)
         else:
             show_message(window,"❌ Incorrect password: vault rejected!", is_error=True)
         
