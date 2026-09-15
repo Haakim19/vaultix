@@ -8,12 +8,12 @@ from app.models.models import Vault
 engine = create_engine("sqlite://")
 Base.metadata.create_all(engine)
 
-testSession = sessionmaker(engine)
+TestingSession = sessionmaker(engine)
 
 
 def test_vault():
     now = datetime.now(timezone.utc)
-    with testSession() as session:
+    with TestingSession() as session:
         with session.begin():
             vault = Vault(  name = "test", 
                             salt = b"salt",
@@ -25,14 +25,14 @@ def test_vault():
             session.flush()
             pid = vault.vault_id
             
-    with testSession() as session:
+    with TestingSession() as session:
         with session.begin():
             vault = session.get(Vault, pid)
             assert vault.name == "test" and vault.salt == b"salt"
             session.delete(vault)
         
     
-    with testSession() as session:
+    with TestingSession() as session:
         assert session.scalar(select(Vault)) is None
     
     print("✅ passed")
