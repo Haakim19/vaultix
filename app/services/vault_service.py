@@ -15,6 +15,17 @@ def any_vault_exist(db) -> bool:
     ).first() is not None
 
 
+def vault_name_exists(db, vault_name: str) -> bool:
+    normalized_name = vault_name.strip().lower()
+
+    vaults = db.execute(select(Vault)).scalars().all()
+
+    return any(
+        vault.name.strip().lower() == normalized_name
+        for vault in vaults
+    )
+
+
 def create_vault(   db, 
                     vault_name: str, 
                     master_password: str
