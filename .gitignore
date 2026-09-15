@@ -11,3 +11,4 @@ python.toml
 .venv
 # database file
 vaultix.db
+vaultix1.db
