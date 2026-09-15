@@ -1,6 +1,8 @@
 from app.database.database import SessionLocal
-from app.services.vault_service import create_vault
+from app.services.vault_service import create_vault, vault_name_exists
 from app.utils.ui_loader import load_ui, show_message
+from app.session.session import VaultSession
+from app.views.dashboard import dashboard_window
 
 def main_vault_creation():
 
@@ -18,12 +20,12 @@ def main_vault_creation():
 
 def validate_data(window):
 
-    vault_name = window.vaultNameInput.text()
+    vault_name = window.vaultNameInput.text().strip()
     password = window.passwordInput.text()
     confirm_password = window.confirmPasswordInput.text()
 
     error =(
-        "Vault name is empty" if not vault_name.strip() else
+        "Vault name is empty" if not vault_name else
         "Password is empty" if not password else
         "Password must be at least 8 characters" if len(password) < 8 else
         "Confirm password is empty" if not confirm_password else
@@ -36,14 +38,32 @@ def validate_data(window):
     # Save to Database 
     try:
         with SessionLocal() as db:
-            created_vault = create_vault(db,vault_name, password)
-        # show success message 
-
-        show_message(window, f"Vault '{created_vault.name}' created successfully!")
-        clear_fields(window)
+            
+            if vault_name_exists(db, vault_name):
+                show_message(
+            window,
+            "A vault with this name already exists.",
+            is_error=True
+            )
+                return
+            created_vault, vault_key = create_vault(
+                db, 
+                vault_name, 
+                password
+                )
+            
     except Exception as e:
-        # Handle database error gracefully
+        # Handle database error
         show_message(window, f"Failed to create vault {e}", is_error= True)
+        return
+    
+    session = VaultSession(created_vault, vault_key)
+        
+    # open dashboard on successfull vault creation
+    window.dashboard = dashboard_window(session)
+    window.dashboard.show()
+    clear_fields(window)
+    window.close()
 
 def clear_fields(window):
     window.vaultNameInput.clear()
