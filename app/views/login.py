@@ -1,5 +1,6 @@
 from app.database.database import SessionLocal
 from app.utils.ui_loader import load_ui, show_message
+from app.utils.password_toggle import wire_password_toggle
 from app.services.vault_service import unlock_vault, get_vaults, get_vault_by_id
 from app.session.session import VaultSession
 from app.views.dashboard import dashboard_window
@@ -10,6 +11,8 @@ def login_window():
     if window is None:
         raise RuntimeError("Failed to load UI file: ui/login.ui")
 
+    wire_password_toggle(window.masterPassword, window.toggleMasterPasswordButton)
+    
     combo = window.vaultName
     
     combo.clear()
@@ -21,7 +24,9 @@ def login_window():
 
     for vault in vaults:
         combo.addItem(vault.name, vault.vault_id)
+        
     combo.setCurrentIndex(0)
+    
     window.unlockVault.clicked.connect(
         lambda: validate_login_data(window)
     )
