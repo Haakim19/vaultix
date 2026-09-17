@@ -1,8 +1,10 @@
 from app.database.database import SessionLocal
 from app.services.vault_service import create_vault, vault_name_exists
 from app.utils.ui_loader import load_ui, show_message
+from app.utils.password_toggle import wire_password_toggle
 from app.session.session import VaultSession
 from app.views.dashboard import dashboard_window
+
 
 def main_vault_creation():
 
@@ -10,6 +12,9 @@ def main_vault_creation():
 
     if window is None:
         raise RuntimeError("Failed to load UI file: ui/create_vault.ui")
+    
+    wire_password_toggle(window.passwordInput, window.togglePasswordButton)
+    wire_password_toggle(window.confirmPasswordInput, window.toggleConfirmPasswordButton)
     
     window.createVaultButton.clicked.connect(
         lambda: validate_data(window)
