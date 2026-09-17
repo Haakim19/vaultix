@@ -71,7 +71,17 @@ def decrypt_credential(credential: Credential, session):
         credential.password_nonce,
         session.vault_key
     )
-    return username, password
+    
+    if credential.encrypted_notes:
+        notes = decrypt_data(
+            credential.encrypted_notes,
+            credential.notes_nonce,
+            session.vault_key
+        )
+    else:
+        notes = ""
+    
+    return username, password, notes
 
 def update_credential(
     db, 
