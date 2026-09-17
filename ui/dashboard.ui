@@ -6,94 +6,470 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1100</width>
     <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Vaultix</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1001</width>
-      <height>641</height>
-     </rect>
+   <layout class="QVBoxLayout" name="centralLayout">
+    <property name="spacing">
+     <number>0</number>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QWidget" name="topbar" native="true">
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QWidget" name="topBar" native="true">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>64</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="topBarLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <property name="leftMargin">
+        <number>16</number>
+       </property>
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <property name="rightMargin">
+        <number>16</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="appTitleLabel">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Vaultix</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="topBarSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="vaultNameLabel">
+         <property name="text">
+          <string>Vault: —</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="newVaultButton">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>+ New Vault</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="lockVaultButton">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="text">
+          <string>Lock Vault</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="mainSplitter">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>3</number>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="leftPanel" native="true">
+       <layout class="QVBoxLayout" name="leftPanelLayout">
+        <property name="leftMargin">
+         <number>12</number>
+        </property>
+        <property name="topMargin">
+         <number>12</number>
+        </property>
+        <property name="rightMargin">
+         <number>12</number>
+        </property>
+        <property name="bottomMargin">
+         <number>12</number>
+        </property>
         <item>
-         <widget class="QLabel" name="appTitleLabel">
-          <property name="minimumSize">
-           <size>
-            <width>121</width>
-            <height>41</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Sans Serif</family>
-            <pointsize>20</pointsize>
-           </font>
-          </property>
+         <widget class="QLabel" name="categoriesLabel">
           <property name="text">
-           <string>Welcome to Vaultix</string>
+           <string>Categories</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="vaultLabel">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
+         <widget class="QListWidget" name="categoryList"/>
         </item>
         <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+         <widget class="QPushButton" name="addCategoryButton">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="lockVault">
           <property name="text">
-           <string>Lock Vault</string>
+           <string>+ Add Category</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-     </item>
-     <item>
-      <widget class="QWidget" name="leftPanel" native="true"/>
-     </item>
-     <item>
-      <widget class="QWidget" name="middlePanel" native="true"/>
-     </item>
-     <item>
-      <widget class="QWidget" name="rightPanel" native="true"/>
-     </item>
-    </layout>
-   </widget>
+      <widget class="QWidget" name="middlePanel" native="true">
+       <layout class="QVBoxLayout" name="middlePanelLayout">
+        <property name="leftMargin">
+         <number>12</number>
+        </property>
+        <property name="topMargin">
+         <number>12</number>
+        </property>
+        <property name="rightMargin">
+         <number>12</number>
+        </property>
+        <property name="bottomMargin">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QWidget" name="searchBar" native="true">
+          <layout class="QHBoxLayout" name="searchBarLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="searchInput">
+             <property name="placeholderText">
+              <string>Search credentials...</string>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="newCredentialButton">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="text">
+              <string>+ New</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="credentialList"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rightPanel" native="true">
+       <layout class="QVBoxLayout" name="rightPanelLayout">
+        <property name="leftMargin">
+         <number>12</number>
+        </property>
+        <property name="topMargin">
+         <number>12</number>
+        </property>
+        <property name="rightMargin">
+         <number>12</number>
+        </property>
+        <property name="bottomMargin">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QStackedWidget" name="detailStack">
+          <widget class="QWidget" name="emptyStatePage">
+           <layout class="QVBoxLayout" name="emptyStateLayout">
+            <item>
+             <spacer name="emptyTopSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="emptyStateLabel">
+              <property name="text">
+               <string>Select a credential to view details
+or click &quot;+ New&quot; to add one</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignCenter</set>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="emptyBottomSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="detailPage">
+           <layout class="QVBoxLayout" name="detailPageLayout">
+            <item>
+             <widget class="QLabel" name="titleLabel">
+              <property name="text">
+               <string>Title</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="websiteLabel">
+              <property name="text">
+               <string>https://example.com</string>
+              </property>
+              <property name="openExternalLinks">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="usernameHeader">
+              <property name="text">
+               <string>Username</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="usernameRow" native="true">
+              <layout class="QHBoxLayout" name="usernameRowLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLineEdit" name="usernameField">
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="copyUsernameButton">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="text">
+                  <string>Copy</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="passwordHeader">
+              <property name="text">
+               <string>Password</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="passwordRow" native="true">
+              <layout class="QHBoxLayout" name="passwordRowLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLineEdit" name="passwordField">
+                 <property name="echoMode">
+                  <enum>QLineEdit::EchoMode::Password</enum>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="revealButton">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="text">
+                  <string>👁</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="copyPasswordButton">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="text">
+                  <string>Copy</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="notesHeader">
+              <property name="text">
+               <string>Notes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="notesField">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="actionRow" native="true">
+              <layout class="QHBoxLayout" name="actionRowLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <spacer name="actionSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="editButton">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="text">
+                  <string>Edit</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="deleteButton">
+                 <property name="cursor">
+                  <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="text">
+                  <string>Delete</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1100</width>
      <height>27</height>
     </rect>
    </property>
