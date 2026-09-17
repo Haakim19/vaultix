@@ -10,6 +10,7 @@ def add_credentials(
     website,
     username,
     password,
+    notes,
     category_id = None
 ):
     encrypted_username, username_nonce = encrypt_data(
@@ -20,6 +21,15 @@ def add_credentials(
         password,
         session.vault_key
     )
+    if notes:
+        encrypted_notes, notes_nonce = encrypt_data(
+            notes,
+            session.vault_key
+        )
+    else:
+        encrypted_notes = None
+        notes_nonce = None
+    
     credential = Credential(
         vault_id = session.vault.vault_id,
         category_id = category_id,
@@ -28,7 +38,9 @@ def add_credentials(
         encrypted_username = encrypted_username,
         username_nonce = username_nonce,
         encrypted_password = encrypted_password,
-        password_nonce = password_nonce
+        password_nonce = password_nonce,
+        encrypted_notes=encrypted_notes,
+        notes_nonce=notes_nonce,
     )
     db.add(credential)
     db.commit()
