@@ -12,14 +12,14 @@ from app.views.login import login_window
 def main():
     app = QApplication(sys.argv)
 
-    # with SessionLocal() as db:
-    #     has_vault = any_vault_exist(db)
+    with SessionLocal() as db:
+        has_vault = any_vault_exist(db)
     
-    # if has_vault:
-    #     window = login_window()
-    # else:
-    #     window = main_vault_creation()
-    window = main_vault_creation()
+    if has_vault:
+        window = login_window()
+    else:
+        window = main_vault_creation()
+    # window = main_vault_creation()
     window.show()
 
     sys.exit(app.exec())
