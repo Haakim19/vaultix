@@ -1,9 +1,11 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem
+from app.views.credential_form import credential_window
+from app.views.credential_edit import credential_edit_window
 from app.utils.ui_loader import load_ui
+from app.utils.password_toggle import wire_password_toggle
 from app.database.database import SessionLocal
 from app.services.credential_service import get_credentials, decrypt_credential
-from app.views.credential_form import credential_window
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -13,7 +15,7 @@ def dashboard_window(session):
     
     window.session = session
     window.vaultNameLabel.setText(f"Vault: {session.vault.name}")
-    
+    window.detailStack.setCurrentIndex(0)
     load_credentials(window)
     
     window.credentialList.currentRowChanged.connect(
@@ -28,6 +30,9 @@ def dashboard_window(session):
         lambda: open_credential_form(window)
     )
     
+    window.editButton.clicked.connect(
+        lambda: open_credential_edit(window)
+    )
     return window
 
 def lock_vault(window):
@@ -55,6 +60,9 @@ def load_credentials(window):
 
 def open_credential_form(window):
     window.credential_form = credential_window(window.session)
+    window.credential_form.finished.connect(
+        lambda: load_credentials(window)
+    )
     window.credential_form.show()
 
 
@@ -66,7 +74,7 @@ def show_credential_details(window, row):
 
     credential = item.data(Qt.UserRole)
 
-    username, password = decrypt_credential(
+    username, password, notes = decrypt_credential(
         credential,
         window.session
     )
@@ -75,5 +83,21 @@ def show_credential_details(window, row):
     window.websiteLabel.setText(credential.website or "")
     window.usernameField.setText(username)
     window.passwordField.setText(password)
+    window.notesField.setPlainText(notes)
     
     window.detailStack.setCurrentIndex(1)
+
+
+def open_credential_edit(window):
+    row = window.credentialList.currentRow()
+    if row < 0:
+        return
+    
+    item = window.credentialList.item(row)
+    credential = item.data(Qt.UserRole)
+    
+    window.edit_credential = credential_edit_window(
+        window.session,
+        credential
+        )
+    window.edit_credential.show()
