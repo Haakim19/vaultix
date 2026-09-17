@@ -1,0 +1,171 @@
+/* ui/theme.qss — Vaultix dark theme */
+
+QMainWindow, QDialog {
+    background-color: #171a21;
+}
+
+QWidget#card {
+    background-color: #1f242e;
+    border-radius: 14px;
+    border: 1px solid #2a3040;
+}
+
+QLabel {
+    color: #d7dce5;
+}
+
+QLabel#headerLabel,
+QLabel#titleLabel {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+QLabel#pLabel,
+QLabel#subtitleLabel {
+    color: #8b93a7;
+    font-size: 15px;
+}
+
+QLabel#vaultName,
+QLabel#pwshLabel1,
+QLabel#pwshLabel2,
+QLabel#passwordLabel,
+QLabel#passwordLabel_2,
+QLabel#categoriesLabel,
+QLabel#usernameHeader,
+QLabel#passwordHeader,
+QLabel#notesHeader {
+    color: #b8c0d1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+QLabel#hintLabel {
+    color: #6b7385;
+    font-size: 11px;
+}
+
+QLabel#vaultNameLabel {
+    color: #b8c0d1;
+    font-size: 12px;
+}
+
+QLabel#appTitleLabel {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+QLabel#emptyStateLabel {
+    color: #6b7385;
+    font-size: 13px;
+}
+
+QLineEdit, QComboBox, QPlainTextEdit {
+    background-color: #262b36;
+    border: 1px solid #333a4a;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #e6e9ef;
+    selection-background-color: #2d6cdf;
+    selection-color: #ffffff;
+}
+
+QLineEdit:hover, QComboBox:hover, QPlainTextEdit:hover {
+    border: 1px solid #3d4557;
+}
+
+QLineEdit:focus, QComboBox:focus, QPlainTextEdit:focus {
+    border: 1px solid #2d6cdf;
+    background-color: #2b3140;
+}
+
+QLineEdit[readOnly="true"] {
+    background-color: #20242e;
+    color: #b8c0d1;
+}
+
+QComboBox::drop-down { border: none; width: 24px; }
+QComboBox QAbstractItemView {
+    background-color: #262b36;
+    border: 1px solid #333a4a;
+    selection-background-color: #2d6cdf;
+    color: #e6e9ef;
+}
+
+QPushButton {
+    background-color: #2d6cdf;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+}
+QPushButton:hover   { background-color: #4a83e6; }
+QPushButton:pressed { background-color: #1f4fa8; padding-top: 11px; padding-bottom: 9px; }
+QPushButton:disabled { background-color: #2a3040; color: #6b7385; }
+
+/* Big primary buttons */
+QPushButton#createVaultButton,
+QPushButton#unlockVault {
+    padding: 12px 28px;
+    font-size: 15px;
+}
+
+/* Ghost-style buttons */
+QPushButton#newVaultButton {
+    background-color: transparent;
+    color: #b8c0d1;
+    border: 1px solid #333a4a;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+QPushButton#newVaultButton:hover {
+    background-color: #262b36;
+    border: 1px solid #3d4557;
+}
+QPushButton#newVaultButton:pressed {
+    background-color: #1f4fa8;
+    color: #ffffff;
+}
+
+QToolButton {
+    background-color: transparent;
+    border: none;
+    padding: 4px 6px;
+    font-size: 16px;
+    color: #b8c0d1;
+}
+QToolButton:hover {
+    background-color: #2b3140;
+    border-radius: 6px;
+}
+QToolButton:pressed {
+    background-color: #1f4fa8;
+    border-radius: 6px;
+    color: #ffffff;
+}
+
+QListWidget {
+    background-color: #1f242e;
+    border: 1px solid #2a3040;
+    border-radius: 10px;
+    color: #d7dce5;
+    padding: 4px;
+    outline: none;
+}
+QListWidget::item {
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: #d7dce5;
+}
+QListWidget::item:hover    { background-color: #262b36; }
+QListWidget::item:selected { background-color: #2d6cdf; color: #ffffff; }
+
+QStatusBar { background-color: #1a1e27; color: #8b93a7; }
+QMenuBar   { background-color: #1a1e27; color: #d7dce5; }
+QMenuBar::item:selected { background-color: #262b36; }
