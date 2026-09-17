@@ -1,6 +1,6 @@
 from app.database.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import LargeBinary, DateTime, String, ForeignKey
 
 #? vault table
@@ -13,13 +13,13 @@ class Vault(Base):
     encrypted_verification : Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     verification_nonce : Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     created_at : Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default= lambda: datetime.now(timezone.utc),
+        DateTime,
+        default= lambda: datetime.now(),
         nullable=False)
     updated_at : Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default= lambda: datetime.now(timezone.utc),
-        onupdate= lambda: datetime.now(timezone.utc),
+        DateTime,
+        default= lambda: datetime.now(),
+        onupdate= lambda: datetime.now(),
         nullable=False)
 
 #! Relationships
@@ -68,15 +68,17 @@ class Credential(Base):
     username_nonce: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     encrypted_password: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     password_nonce: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    encrypted_notes: Mapped[bytes | None] = mapped_column(LargeBinary,nullable=True)   
+    notes_nonce: Mapped[bytes | None] = mapped_column(LargeBinary,nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        DateTime,
+        default=lambda: datetime.now(),
         nullable=False,
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        DateTime,
+        default=lambda: datetime.now(),
+        onupdate=lambda: datetime.now(),
         nullable=False,
     )
 
