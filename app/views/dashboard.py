@@ -7,9 +7,10 @@ def dashboard_window(session):
         raise RuntimeError("Faild to load: 'ui/dashboard.ui'")
     
     window.session = session
-    window.vaultLabel.setText(session.vault.name)
+    window.vaultNameLabel.setText(f"Vault: {session.vault.name}")
     
-    window.lockVault.clicked.connect(
+
+    window.lockVaultButton.clicked.connect(
         lambda: lock_vault(window)
     )
     return window
