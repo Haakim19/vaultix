@@ -12,3 +12,6 @@ python.toml
 # database file
 vaultix.db
 vaultix1.db
+
+# backup file
+ui/_backup
