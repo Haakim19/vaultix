@@ -145,3 +145,11 @@ def update_credential(
     db.expunge(credential)
     
     return credential
+
+def delete_credential(db, session, credential):
+    if credential.vault_id != session.vault.vault_id:
+        raise ValueError("Credential does not belong to this vault")
+    
+    db.add(credential)
+    db.delete(credential)
+    db.commit()
