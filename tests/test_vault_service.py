@@ -167,7 +167,7 @@ def test_credentials_are_isolated_between_vaults():
         assert workCredentials[0].title == "Slack"
 
         personalCredential = personalCredentials[0]
-        username, pwsh = decrypt_credential(
+        username, pwsh, notes = decrypt_credential(
             personalCredential,
             personalSession
         )
@@ -181,9 +181,10 @@ def test_credentials_are_isolated_between_vaults():
             "Updated Gmail",
             "https://gmail.com",
             "new_username",
-            "old_password",)
+            "old_password",
+            "Hello")
         
-        updated_username, updated_password = decrypt_credential(
+        updated_username, updated_password, updated_notes = decrypt_credential(
             updated,
             personalSession
         )
