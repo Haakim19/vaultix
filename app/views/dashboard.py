@@ -1,11 +1,11 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QListWidgetItem
+from PySide6.QtWidgets import QListWidgetItem, QMessageBox
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
 from app.utils.ui_loader import load_ui
 from app.utils.password_toggle import wire_password_toggle
 from app.database.database import SessionLocal
-from app.services.credential_service import get_credentials, decrypt_credential
+from app.services.credential_service import get_credentials, decrypt_credential, delete_credential
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -32,6 +32,10 @@ def dashboard_window(session):
     
     window.editButton.clicked.connect(
         lambda: open_credential_edit(window)
+    )
+    
+    window.deleteButton.clicked.connect(
+        lambda: delete_selected_credential(window)
     )
     return window
 
@@ -108,3 +112,32 @@ def open_credential_edit(window):
         refresh_after_edit
     )
     window.edit_credential.show()
+
+def delete_selected_credential(window):
+    row = window.credentialList.currentRow()
+    
+    if row < 0 :
+        return
+    
+    item = window.credentialList.item(row)
+    credential = item.data(Qt.UserRole)
+    
+    reply = QMessageBox.question(
+        window,
+        "Delete Credential",
+        f"Are you sure you want to delete: {credential.title}",
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No 
+    )
+    
+    if reply != QMessageBox.Yes:
+        return
+    
+    with SessionLocal() as db:
+        delete_credential(
+            db, 
+            window.session,
+            credential
+        )
+    load_credentials(window)
+    window.detailStack.setCurrentIndex(0)
