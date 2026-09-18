@@ -100,4 +100,11 @@ def open_credential_edit(window):
         window.session,
         credential
         )
+    def refresh_after_edit():
+        load_credentials(window)
+        window.credentialList.setCurrentRow(row)
+        
+    window.edit_credential.finished.connect(
+        refresh_after_edit
+    )
     window.edit_credential.show()
