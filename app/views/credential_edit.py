@@ -1,9 +1,8 @@
 from app.utils.ui_loader import load_ui, show_message
 from app.utils.password_toggle import wire_password_toggle
 from app.services.credential_service import decrypt_credential
-from app.database.database import SessionLocal
 from app.services.credential_service import update_credential
-
+from app.database.database import SessionLocal
 
 
 def credential_edit_window(session, credential):
@@ -44,7 +43,7 @@ def credential_edit_window(session, credential):
     return window
 
 
-def save_credential_changes(window, credential):
+def save_credential_changes( window, credential):
     title = window.titleInput.text().strip()
     website = window.websiteInput.text().strip()
     username = window.usernameInput.text()
