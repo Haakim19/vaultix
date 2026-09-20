@@ -1,11 +1,14 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QListWidgetItem, QMessageBox
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
 from app.utils.ui_loader import load_ui
-from app.utils.password_toggle import wire_password_toggle
+
 from app.database.database import SessionLocal
-from app.services.credential_service import get_credentials, decrypt_credential, delete_credential
+from app.services.credential_service import (   get_credentials, 
+                                                decrypt_credential, 
+                                                delete_credential, 
+                                                search_credentials)
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -30,6 +33,9 @@ def dashboard_window(session):
         lambda: open_credential_form(window)
     )
     
+    window.searchInput.textChanged.connect(
+        lambda: search_credential_list(window)
+    )
     window.editButton.clicked.connect(
         lambda: open_credential_edit(window)
     )
@@ -37,6 +43,7 @@ def dashboard_window(session):
     window.deleteButton.clicked.connect(
         lambda: delete_selected_credential(window)
     )
+    
     return window
 
 def lock_vault(window):
@@ -61,6 +68,27 @@ def load_credentials(window):
         item.setData(Qt.UserRole, credential)
         window.credentialList.addItem(item)
 
+
+def search_credential_list(window):
+    search_text = window.searchInput.text().strip()
+    
+    if not search_text:
+        load_credentials(window)
+        return
+    
+    with SessionLocal() as db:
+        credentials = search_credentials(
+            db,
+            window.session,
+            search_text
+        )
+    
+    window.credentialList.clear()
+    
+    for credential in credentials:
+        item = QListWidgetItem(credential.title)
+        item.setData(Qt.UserRole, credential)
+        window.credentialList.addItem(item)
 
 def open_credential_form(window):
     window.credential_form = credential_window(window.session)
