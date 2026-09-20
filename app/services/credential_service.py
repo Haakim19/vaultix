@@ -60,6 +60,19 @@ def get_credentials(db, session):
     return credentials
 
 
+def search_credentials(db, session, search_text):
+    credentials = db.execute(
+        select(Credential).where(
+            Credential.vault_id == session.vault.vault_id,
+            Credential.title.ilike(f"%{search_text}%")
+        )
+    ).scalars().all()
+    for credential in credentials:
+        db.expunge(credential)
+    
+    return credentials
+
+
 def decrypt_credential(credential: Credential, session):
     username = decrypt_data(
         credential.encrypted_username,
