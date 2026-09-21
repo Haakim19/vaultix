@@ -46,10 +46,10 @@ def validate_data(window):
             
             if vault_name_exists(db, vault_name):
                 show_message(
-            window,
-            "A vault with this name already exists.",
-            is_error=True
-            )
+                    window,
+                    "A vault with this name already exists.",
+                    is_error=True
+                )
                 return
             created_vault, vault_key = create_vault(
                 db, 
