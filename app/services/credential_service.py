@@ -46,6 +46,7 @@ def add_credentials(
     db.commit()
     db.refresh(credential)
     db.expunge(credential)
+    
     return credential
 
 
@@ -53,7 +54,8 @@ def add_credentials(
 def get_credentials(db, session):
     credentials = db.execute(
         select(Credential).where(
-            Credential.vault_id == session.vault.vault_id)
+            Credential.vault_id == session.vault.vault_id
+        )
     ).scalars().all()
     for credential in credentials:
         db.expunge(credential)
