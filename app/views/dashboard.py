@@ -1,14 +1,19 @@
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QListWidgetItem, QMessageBox
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
 from app.utils.ui_loader import load_ui
-
+from app.utils.auto_lock import (
+    create_auto_lock_timer,
+    remove_activity_filter,
+    ActivityFilter)
 from app.database.database import SessionLocal
-from app.services.credential_service import (   get_credentials, 
-                                                decrypt_credential, 
-                                                delete_credential, 
-                                                search_credentials)
+from app.services.credential_service import (   
+    get_credentials, 
+    decrypt_credential, 
+    delete_credential, 
+    search_credentials)
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -17,12 +22,28 @@ def dashboard_window(session):
         raise RuntimeError("Faild to load: 'ui/dashboard.ui'")
     
     window.session = session
+    
+    # Auto lock timer
+    window.autoLockTimer = create_auto_lock_timer(window)
+    
+    window.activity_filter = ActivityFilter(window)
+    QApplication.instance().installEventFilter(window.activity_filter)
+    
+    window.autoLockTimer.timeout.connect(
+        lambda: lock_vault(window)
+    )
+    window.autoLockTimer.start()
+    
+    # add the current vault name in dashboard
     window.vaultNameLabel.setText(f"Vault: {session.vault.name}")
+    
     window.detailStack.setCurrentIndex(0)
+    
+    # Load the creentials to dashboard
     load_credentials(window)
     
     window.credentialList.currentRowChanged.connect(
-    lambda row: show_credential_details(window, row)
+        lambda row: show_credential_details(window, row)
     )
     
     window.lockVaultButton.clicked.connect(
@@ -36,6 +57,7 @@ def dashboard_window(session):
     window.searchInput.textChanged.connect(
         lambda: search_credential_list(window)
     )
+    
     window.editButton.clicked.connect(
         lambda: open_credential_edit(window)
     )
@@ -48,6 +70,9 @@ def dashboard_window(session):
 
 def lock_vault(window):
     from app.views.login import login_window
+    
+    window.autoLockTimer.stop()
+    remove_activity_filter(window)
     
     window.session = None
     
@@ -90,11 +115,22 @@ def search_credential_list(window):
         item.setData(Qt.UserRole, credential)
         window.credentialList.addItem(item)
 
+
 def open_credential_form(window):
+    window.credentialList.clearSelection()
+    window.detailStack.setCurrentIndex(0)
+    
     window.credential_form = credential_window(window.session)
+    
+    def after_credential_form():
+        load_credentials(window)
+        window.credentialList.clearSelection()
+        window.detailStack.setCurrentIndex(0)
+        
     window.credential_form.finished.connect(
-        lambda: load_credentials(window)
+        after_credential_form
     )
+    
     window.credential_form.show()
 
 
@@ -110,7 +146,6 @@ def show_credential_details(window, row):
         credential,
         window.session
     )
-
     window.titleLabel.setText(credential.title)
     window.websiteLabel.setText(credential.website or "")
     window.usernameField.setText(username)
@@ -127,11 +162,11 @@ def open_credential_edit(window):
     
     item = window.credentialList.item(row)
     credential = item.data(Qt.UserRole)
-    
     window.edit_credential = credential_edit_window(
         window.session,
         credential
         )
+    
     def refresh_after_edit():
         load_credentials(window)
         window.credentialList.setCurrentRow(row)
