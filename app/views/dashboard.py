@@ -1,9 +1,10 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QListWidgetItem, QMessageBox
+from app.utils.ui_loader import load_ui
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
-from app.utils.ui_loader import load_ui
+from app.views.add_category import category_window
 from app.utils.auto_lock import (
     create_auto_lock_timer,
     remove_activity_filter,
@@ -14,6 +15,7 @@ from app.services.credential_service import (
     decrypt_credential, 
     delete_credential, 
     search_credentials)
+from app.services.category_services import get_categories
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -39,8 +41,10 @@ def dashboard_window(session):
     
     window.detailStack.setCurrentIndex(0)
     
-    # Load the creentials to dashboard
+    # Load the credentials to dashboard
     load_credentials(window)
+    
+    load_category(window)
     
     window.credentialList.currentRowChanged.connect(
         lambda row: show_credential_details(window, row)
@@ -52,6 +56,10 @@ def dashboard_window(session):
     
     window.newCredentialButton.clicked.connect(
         lambda: open_credential_form(window)
+    )
+    
+    window.addCategoryButton.clicked.connect(
+        lambda: open_category_window(window)
     )
     
     window.searchInput.textChanged.connect(
@@ -94,6 +102,18 @@ def load_credentials(window):
         window.credentialList.addItem(item)
 
 
+def load_category(window):
+    with SessionLocal() as db:
+        categories = get_categories(db, window.session)
+    
+    window.categoryList.clear()
+    
+    for category in categories:
+        item = QListWidgetItem(category.name)
+        item.setData(Qt.UserRole, category)
+        window.categoryList.addItem(item)
+
+
 def search_credential_list(window):
     search_text = window.searchInput.text().strip()
     
@@ -133,6 +153,20 @@ def open_credential_form(window):
     
     window.credential_form.show()
 
+def open_category_window(window):
+    window.categoryList.clearSelection()
+    
+    window.category_window = category_window(window.session)
+    
+    def after_add_category():
+        load_category(window)
+        window.categoryList.clearSelection()
+    
+    window.category_window.finished.connect(
+        after_add_category
+    )
+    
+    window.category_window.show()
 
 def show_credential_details(window, row):
     if row < 0:
@@ -153,7 +187,6 @@ def show_credential_details(window, row):
     window.notesField.setPlainText(notes)
     
     window.detailStack.setCurrentIndex(1)
-
 
 def open_credential_edit(window):
     row = window.credentialList.currentRow()
