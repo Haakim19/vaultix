@@ -57,10 +57,24 @@ def get_credentials(db, session):
             Credential.vault_id == session.vault.vault_id
         )
     ).scalars().all()
+    
     for credential in credentials:
         db.expunge(credential)
+    
     return credentials
 
+def get_credentials_by_category(db, session, category_id):
+    credentials = db.execute(
+        select(Credential).where(
+            Credential.vault_id == session.vault.vault_id,
+            Credential.category_id == category_id
+        )
+    ).scalars().all()
+    
+    for credential in credentials:
+        db.expunge(credential)
+    
+    return credentials
 
 def search_credentials(db, session, search_text):
     credentials = db.execute(
