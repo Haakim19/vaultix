@@ -12,6 +12,7 @@ from app.utils.auto_lock import (
 from app.database.database import SessionLocal
 from app.services.credential_service import (   
     get_credentials, 
+    get_credentials_by_category,
     decrypt_credential, 
     delete_credential, 
     search_credentials)
@@ -39,15 +40,16 @@ def dashboard_window(session):
     # add the current vault name in dashboard
     window.vaultNameLabel.setText(f"Vault: {session.vault.name}")
     
-    window.detailStack.setCurrentIndex(0)
-    
-    # Load the credentials to dashboard
-    load_credentials(window)
-    
     load_category(window)
+    
+    window.detailStack.setCurrentIndex(0)
     
     window.credentialList.currentRowChanged.connect(
         lambda row: show_credential_details(window, row)
+    )
+    
+    window.categoryList.currentRowChanged.connect(
+        lambda row: category_selected(window, row)
     )
     
     window.lockVaultButton.clicked.connect(
@@ -107,6 +109,9 @@ def load_category(window):
         categories = get_categories(db, window.session)
     
     window.categoryList.clear()
+    all_item = QListWidgetItem("All Categories")
+    all_item.setData(Qt.UserRole, None)
+    window.categoryList.addItem(all_item)
     
     for category in categories:
         item = QListWidgetItem(category.name)
@@ -187,6 +192,34 @@ def show_credential_details(window, row):
     window.notesField.setPlainText(notes)
     
     window.detailStack.setCurrentIndex(1)
+
+
+def category_selected(window, row):
+    if row < 0:
+        return
+    
+    window.credentialList.clearSelection()
+    window.detailStack.setCurrentIndex(0)
+    
+    item = window.categoryList.item(row)
+    category = item.data(Qt.UserRole)
+    
+    if category is None:
+        load_credentials(window)
+        return
+    
+    with SessionLocal() as db:
+        credentials = get_credentials_by_category(
+            db,
+            window.session,
+            category.category_id
+        )
+    window.credentialList.clear()
+    
+    for credential in credentials:
+        item = QListWidgetItem(credential.title)
+        item.setData(Qt.UserRole, credential)
+        window.credentialList.addItem(item)
 
 def open_credential_edit(window):
     row = window.credentialList.currentRow()
