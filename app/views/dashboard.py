@@ -1,7 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QListWidgetItem, QMessageBox
-from app.utils.ui_loader import load_ui
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
 from app.views.add_category import category_window
@@ -17,6 +16,8 @@ from app.services.credential_service import (
     delete_credential, 
     search_credentials)
 from app.services.category_services import get_categories
+from app.utils.ui_loader import load_ui
+from app.utils.dashboard_helper import display_credentials
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -96,13 +97,7 @@ def load_credentials(window):
     with SessionLocal() as db:
         credentials = get_credentials(db, window.session)
     
-    window.credentialList.clear()
-    
-    for credential in credentials:
-        item = QListWidgetItem(credential.title)
-        item.setData(Qt.UserRole, credential)
-        window.credentialList.addItem(item)
-
+    display_credentials(window, credentials)
 
 def load_category(window):
     with SessionLocal() as db:
@@ -122,24 +117,31 @@ def load_category(window):
 def search_credential_list(window):
     search_text = window.searchInput.text().strip()
     
+    category_item = window.categoryList.currentItem()
+    category = category_item.data(Qt.UserRole) if category_item else None
+    category_id = category.category_id if category else None
     if not search_text:
-        load_credentials(window)
+        if category_id is None:
+            load_credentials(window)
+        else:
+            with SessionLocal() as db:
+                credentials = get_credentials_by_category(
+                    db,
+                    window.session,
+                    category_id
+                )
+            display_credentials(window, credentials)
         return
     
     with SessionLocal() as db:
         credentials = search_credentials(
             db,
             window.session,
-            search_text
+            search_text,
+            category_id
         )
     
-    window.credentialList.clear()
-    
-    for credential in credentials:
-        item = QListWidgetItem(credential.title)
-        item.setData(Qt.UserRole, credential)
-        window.credentialList.addItem(item)
-
+    display_credentials(window, credentials)
 
 def open_credential_form(window):
     window.credentialList.clearSelection()
@@ -214,12 +216,7 @@ def category_selected(window, row):
             window.session,
             category.category_id
         )
-    window.credentialList.clear()
-    
-    for credential in credentials:
-        item = QListWidgetItem(credential.title)
-        item.setData(Qt.UserRole, credential)
-        window.credentialList.addItem(item)
+    display_credentials(window, credentials)
 
 def open_credential_edit(window):
     row = window.credentialList.currentRow()
