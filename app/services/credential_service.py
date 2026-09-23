@@ -76,13 +76,19 @@ def get_credentials_by_category(db, session, category_id):
     
     return credentials
 
-def search_credentials(db, session, search_text):
-    credentials = db.execute(
-        select(Credential).where(
-            Credential.vault_id == session.vault.vault_id,
-            Credential.title.ilike(f"%{search_text}%")
+def search_credentials(db, session, search_text, category_id = None):
+    query = select(Credential).where(
+        Credential.vault_id == session.vault.vault_id,
+        Credential.title.ilike(f"%{search_text}%"),
+    )
+    
+    if category_id is not None:
+        query = query.where(
+            Credential.category_id == category_id
         )
-    ).scalars().all()
+    
+    credentials = db.execute(query).scalars().all()
+    
     for credential in credentials:
         db.expunge(credential)
     
@@ -169,6 +175,7 @@ def update_credential(
         credential.encrypted_notes = new_encrypted_notes
         credential.notes_nonce = new_notes_nonce
     
+    db.add(credential)
     db.commit()
     db.refresh(credential)
     db.expunge(credential)
