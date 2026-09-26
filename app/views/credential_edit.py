@@ -1,27 +1,9 @@
 from app.utils.ui_loader import load_ui, show_message
+from app.utils.dashboard_helper import load_categories
 from app.utils.password_toggle import wire_password_toggle
 from app.services.credential_service import decrypt_credential
 from app.services.credential_service import update_credential
-from app.services.category_services import get_categories
 from app.database.database import SessionLocal
-
-def load_category(window):
-    with SessionLocal() as db:
-        categories = get_categories(
-            db,
-            window.session
-        )
-    window.categoryInput.clear()
-    
-    window.categoryInput.addItem(
-        "No category",
-        None
-    )
-    for category in categories:
-        window.categoryInput.addItem(
-            category.name,
-            category.category_id
-        )
 
 
 def credential_edit_window(session, credential):
@@ -34,7 +16,7 @@ def credential_edit_window(session, credential):
 
     window.session = session
     
-    load_category(window)
+    load_categories(window)
     if credential.category_id is not None:
         index = window.categoryInput.findData(
             credential.category_id

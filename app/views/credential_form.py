@@ -1,28 +1,8 @@
 from app.utils.ui_loader import load_ui, show_message
+from app.utils.dashboard_helper import load_categories
 from app.utils.password_toggle import wire_password_toggle
 from app.database.database import SessionLocal
 from app.services.credential_service import add_credentials
-from app.services.category_services import get_categories
-
-def load_categories(window):
-    with SessionLocal() as db:
-        categories = get_categories(
-            db,
-            window.session
-        )
-    window.categoryInput.clear()
-    
-    window.categoryInput.addItem(
-        "No category",
-        None
-    )
-    
-    for category in categories:
-        window.categoryInput.addItem(
-            category.name,
-            category.category_id
-        )
-
 
 def credential_window(session):
     window = load_ui("ui/credential_dialog.ui")
