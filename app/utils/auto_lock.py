@@ -32,7 +32,4 @@ def create_auto_lock_timer(window, timeout = 5 * 60 * 1000):
 def reset_auto_lock_timer(window):
     if hasattr(window, "activity_filter"):
         window.auto_lock_timer.start()
-        print(
-            f"auto lock timer reset: "
-            f"{window.auto_lock_timer.remainingTime()} ms remaining."
-        )
+        
