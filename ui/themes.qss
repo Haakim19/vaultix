@@ -63,6 +63,14 @@ QLabel#emptyStateLabel {
     font-size: 13px;
 }
 
+QLabel#strengthLabel {
+    max-width: 40px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: #8b93a7;
+}
+
 QLineEdit, QComboBox, QPlainTextEdit {
     background-color: #262b36;
     border: 1px solid #333a4a;

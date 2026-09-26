@@ -224,6 +224,18 @@
        </layout>
       </widget>
       <widget class="QWidget" name="rightPanel" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>400</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <layout class="QVBoxLayout" name="rightPanelLayout">
         <property name="leftMargin">
          <number>12</number>
@@ -240,7 +252,7 @@
         <item>
          <widget class="QStackedWidget" name="detailStack">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="emptyStatePage">
            <layout class="QVBoxLayout" name="emptyStateLayout">
@@ -290,6 +302,12 @@ or click &quot;+ New&quot; to add one</string>
            <layout class="QVBoxLayout" name="detailPageLayout">
             <item>
              <widget class="QLabel" name="titleLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>Title</string>
               </property>
@@ -297,6 +315,12 @@ or click &quot;+ New&quot; to add one</string>
             </item>
             <item>
              <widget class="QLabel" name="websiteLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>https://example.com</string>
               </property>
@@ -329,6 +353,18 @@ or click &quot;+ New&quot; to add one</string>
                </property>
                <item>
                 <widget class="QLineEdit" name="usernameField">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="readOnly">
                   <bool>true</bool>
                  </property>
@@ -371,6 +407,18 @@ or click &quot;+ New&quot; to add one</string>
                </property>
                <item>
                 <widget class="QLineEdit" name="passwordField">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="echoMode">
                   <enum>QLineEdit::EchoMode::Password</enum>
                  </property>
@@ -403,6 +451,132 @@ or click &quot;+ New&quot; to add one</string>
              </widget>
             </item>
             <item>
+             <widget class="QWidget" name="strengthRow" native="true">
+              <layout class="QHBoxLayout" name="strengthRowLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <property name="spacing">
+                <number>8</number>
+               </property>
+               <item>
+                <widget class="QFrame" name="strengthBarBg">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>1</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>6</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>6</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: #262b37; border-radius: 3px;</string>
+                 </property>
+                 <layout class="QHBoxLayout" name="strengthBarBgLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QFrame" name="strengthBarFill">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>6</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>6</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">background-color: #ef4444; border-radius: 3px;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="strengthBarSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>6</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="strengthLabel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>—</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QLabel" name="notesHeader">
               <property name="text">
                <string>Notes</string>
@@ -411,6 +585,18 @@ or click &quot;+ New&quot; to add one</string>
             </item>
             <item>
              <widget class="QPlainTextEdit" name="notesField">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="readOnly">
                <bool>true</bool>
               </property>
