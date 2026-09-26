@@ -1,31 +1,51 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import QListWidgetItem, QMessageBox
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QApplication, QListWidgetItem, QMessageBox
+from app.database.database import SessionLocal
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
 from app.views.add_category import category_window
-from app.utils.auto_lock import (
-    create_auto_lock_timer,
-    remove_activity_filter,
-    ActivityFilter)
-from app.database.database import SessionLocal
+from app.services.category_services import get_categories
 from app.services.credential_service import (   
     get_credentials, 
     get_credentials_by_category,
     decrypt_credential, 
     delete_credential, 
     search_credentials)
-from app.services.category_services import get_categories
 from app.utils.ui_loader import load_ui
-from app.utils.dashboard_helper import display_credentials
+from app.utils.auto_lock import (
+    create_auto_lock_timer,
+    remove_activity_filter,
+    ActivityFilter)
+from app.utils.dashboard_helper import (
+    display_credentials, 
+    display_password_strength)
+from app.utils.password_strength import check_password_strength
+from app.utils.password_toggle import wire_password_toggle
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
     
     if window is None:
-        raise RuntimeError("Faild to load: 'ui/dashboard.ui'")
+        raise RuntimeError("Failed to load: 'ui/dashboard.ui'")
     
     window.session = session
+    
+    wire_password_toggle(
+        window.passwordField,
+        window.revealButton
+    )
+    # copy username
+    window.copyUsernameButton.clicked.connect(
+        lambda: QApplication.clipboard().setText(
+            window.usernameField.text()
+        )
+    )
+    # copy password
+    window.copyPasswordButton.clicked.connect(
+        lambda: QApplication.clipboard().setText(
+            window.passwordField.text()
+        )
+    )
     
     # Auto lock timer
     window.autoLockTimer = create_auto_lock_timer(window)
@@ -120,6 +140,7 @@ def search_credential_list(window):
     category_item = window.categoryList.currentItem()
     category = category_item.data(Qt.UserRole) if category_item else None
     category_id = category.category_id if category else None
+    
     if not search_text:
         if category_id is None:
             load_credentials(window)
@@ -187,6 +208,18 @@ def show_credential_details(window, row):
         credential,
         window.session
     )
+    label, score = check_password_strength(password)
+    
+    QTimer.singleShot(
+        0,
+        lambda: display_password_strength(
+            window,
+            label,
+            score
+        )
+    )
+
+    
     window.titleLabel.setText(credential.title)
     window.websiteLabel.setText(credential.website or "")
     window.usernameField.setText(username)
