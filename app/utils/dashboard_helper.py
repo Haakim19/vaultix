@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem
 from app.database.database import SessionLocal
 from app.services.category_services import get_categories
+
 def display_credentials(window, credentials):
     window.credentialList.clear()
 
@@ -9,7 +10,6 @@ def display_credentials(window, credentials):
         item = QListWidgetItem(credential.title)
         item.setData(Qt.UserRole, credential)
         window.credentialList.addItem(item)
-
 
 
 def load_categories(window):
@@ -30,3 +30,28 @@ def load_categories(window):
             category.name,
             category.category_id
         )
+
+
+def display_password_strength(window, label, score):
+    window._strength_score = score
+    # Track width = strengthBarBg's current width. Fill width = score/6 of that.
+    track = window.strengthBarBg
+    fill = window.strengthBarFill
+
+    # Make sure sizes are computed after the widget has been laid out
+    track_width = track.width() or 200
+    fill_width = max(0, int(track_width * score / 6))
+    fill.setFixedWidth(fill_width)
+
+    colour = {
+        "Weak":   "#ef4444",
+        "Medium": "#f59e0b",
+        "Strong": "#22c55e",
+    }[label]
+    fill.setStyleSheet(
+        f"background-color: {colour}; border-radius: 3px;"
+    )
+    window.strengthLabel.setText(label)
+    window.strengthLabel.setStyleSheet(
+        f"color: {colour}; font-weight: 700; font-size: 14px;"
+    )
