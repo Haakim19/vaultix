@@ -73,6 +73,10 @@ def dashboard_window(session):
         lambda row: category_selected(window, row)
     )
     
+    window.newVaultButton.clicked.connect(
+        lambda: open_new_vault(window)
+    )
+    
     window.lockVaultButton.clicked.connect(
         lambda: lock_vault(window)
     )
@@ -271,6 +275,25 @@ def open_credential_edit(window):
         refresh_after_edit
     )
     window.edit_credential.show()
+
+
+def open_new_vault(window):
+    reply = QMessageBox.question(
+        window,
+        "Create New Vault",
+        "Do you want to create new vault?",
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No 
+    )
+    
+    if reply != QMessageBox.Yes:
+        return
+    
+    from app.views.create_vault import main_vault_creation
+    
+    window.create_vault = main_vault_creation()
+    window.create_vault.show()
+
 
 def delete_selected_credential(window):
     row = window.credentialList.currentRow()
