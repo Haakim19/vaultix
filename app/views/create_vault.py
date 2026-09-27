@@ -6,12 +6,19 @@ from app.session.session import VaultSession
 from app.views.dashboard import dashboard_window
 
 
-def main_vault_creation():
+def main_vault_creation(show_login_link = False):
 
     window = load_ui("ui/create_vault.ui")
 
     if window is None:
         raise RuntimeError("Failed to load UI file: ui/create_vault.ui")
+    
+    window.switchToLoginLabel.setVisible(show_login_link)
+    
+    if show_login_link:
+        window.switchToLoginLabel.linkActivated.connect(
+            lambda link: open_login(window)
+        )
     
     wire_password_toggle(window.passwordInput, window.togglePasswordButton)
     wire_password_toggle(window.confirmPasswordInput, window.toggleConfirmPasswordButton)
@@ -74,3 +81,11 @@ def clear_fields(window):
     window.vaultNameInput.clear()
     window.passwordInput.clear()
     window.confirmPasswordInput.clear()
+
+
+def open_login(window):
+    from app.views.login import login_window
+    
+    window.login = login_window()
+    window.login.show()
+    window.hide()

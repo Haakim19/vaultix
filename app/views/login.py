@@ -27,6 +27,10 @@ def login_window():
         
     combo.setCurrentIndex(0)
     
+    window.switchToCreateLabel.linkActivated.connect(
+        lambda: open_create_vault(window)
+    )
+    
     window.unlockVault.clicked.connect(
         lambda: validate_login_data(window)
     )
@@ -66,3 +70,14 @@ def validate_login_data(window):
     window.dashboard = dashboard_window(session)
     window.dashboard.show()
     window.close()
+
+
+def open_create_vault(window):
+    from app.views.create_vault import main_vault_creation
+    
+    window.create_vault = main_vault_creation(
+        show_login_link = True
+    )
+    
+    window.create_vault.show()
+    window.hide()
