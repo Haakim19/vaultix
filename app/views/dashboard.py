@@ -1,16 +1,22 @@
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QApplication, QListWidgetItem, QMessageBox
+from PySide6.QtWidgets import (
+    QApplication, 
+    QListWidgetItem, 
+    QMessageBox,
+    QMenu)
 from app.database.database import SessionLocal
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
-from app.views.add_category import category_window
-from app.services.category_services import get_categories
 from app.services.credential_service import (   
     get_credentials, 
     get_credentials_by_category,
     decrypt_credential, 
     delete_credential, 
     search_credentials)
+from app.services.category_services import (
+    get_categories,
+    delete_category)
+from app.views.add_category import category_window
 from app.utils.ui_loader import load_ui
 from app.utils.auto_lock import (
     create_auto_lock_timer,
@@ -71,6 +77,14 @@ def dashboard_window(session):
     
     window.categoryList.currentRowChanged.connect(
         lambda row: category_selected(window, row)
+    )
+    
+    window.categoryList.setContextMenuPolicy(
+        Qt.CustomContextMenu
+    )
+    
+    window.categoryList.customContextMenuRequested.connect(
+        lambda position: show_category_menu(window, position)
     )
     
     window.newVaultButton.clicked.connect(
@@ -323,3 +337,61 @@ def delete_selected_credential(window):
         )
     load_credentials(window)
     window.detailStack.setCurrentIndex(0)
+
+
+def show_category_menu(window, position):
+    item = window.categoryList.itemAt(position)
+    
+    if item is None:
+        return
+    
+    category = item.data(Qt.UserRole)
+    
+    if category is None:
+        return
+    
+    menu = QMenu(window)
+    
+    edit_action = menu.addAction("Edit Category")
+    delete_action = menu.addAction("Delete Category")
+
+    action = menu.exec(
+        window.categoryList.mapToGlobal(position)
+    )
+    
+    if action == edit_action:
+        edit_category(window, category)
+    elif action == delete_action:
+        delete_selected_category(window, category)
+
+def edit_category(window, category):
+    window.edit_category_window = category_window(
+        window.session,
+        category
+    )
+    
+    window.edit_category_window.finished.connect(
+        lambda: load_category(window)
+    )
+    window.edit_category_window.show()
+
+def delete_selected_category(window, category):
+    reply = QMessageBox.question(
+        window,
+        "Delete Category",
+        f"Are you sure you want to delete category: {category.name}?",
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+
+    if reply != QMessageBox.Yes:
+        return
+    
+    with SessionLocal() as db:
+        delete_category(
+            db,
+            window.session,
+            category
+        )
+    load_category(window)
+    window.categoryList.setCurrentRow(0)
