@@ -53,3 +53,23 @@ def category_name_exists(db, session, category_name):
         category.name.strip().lower() == normalized_name
         for category in categories
     )
+
+
+def update_category(db, session, category, name, description=""):
+    if category.vault_id != session.vault.vault_id:
+        raise ValueError("Category does not belong to this vault")
+
+    name = name.strip()
+
+    if not name:
+        raise ValueError("Category name cannot be empty")
+
+    category.name = name
+    category.description = description.strip() or None
+
+    db.add(category)
+    db.commit()
+    db.refresh(category)
+    db.expunge(category)
+
+    return category
