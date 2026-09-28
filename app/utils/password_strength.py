@@ -26,7 +26,7 @@ def check_password_strength(password: str) -> tuple[str, int]:
 
     # Penalties
     lower = password.lower()
-    if any(p in lower for p in ("password", "123456", "qwerty", "admin", "letmein")):
+    if lower in ("password", "123456", "qwerty", "admin", "letmein"):
         score -= 2
     if len(set(password)) < 3:
         score -= 2
@@ -39,3 +39,5 @@ def check_password_strength(password: str) -> tuple[str, int]:
         return "Medium", score
     else:
         return "Strong", score
+    
+    
