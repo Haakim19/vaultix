@@ -2,6 +2,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem
 from app.database.database import SessionLocal
 from app.services.category_services import get_categories
+from app.services.credential_service import(
+    get_credentials,
+    get_credentials_by_category,
+    search_credentials
+)
 
 def display_credentials(window, credentials):
     window.credentialList.clear()
@@ -55,3 +60,33 @@ def display_password_strength(window, label, score):
     window.strengthLabel.setStyleSheet(
         f"color: {colour}; font-weight: 700; font-size: 14px;"
     )
+
+def refresh_credential_list(window):
+    search_text = window.searchInput.text().strip()
+    
+    category_item = window.categoryList.currentItem()
+    category = category_item.data(Qt.UserRole) if category_item else None
+    category_id = category.category_id if category else None
+    
+    if search_text:
+        with SessionLocal() as db:
+            credentials = search_credentials(
+                db,
+                window.session,
+                search_text,
+                category_id
+            )
+    elif category_id is not None:
+        with SessionLocal() as db:
+            credentials = get_credentials_by_category(
+                db,
+                window.session,
+                category_id
+            )
+    else:
+        with SessionLocal() as db:
+            credentials = get_credentials(
+                db,
+                window.session
+            )
+    display_credentials(window, credentials)
