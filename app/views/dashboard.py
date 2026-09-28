@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QApplication, 
     QListWidgetItem, 
     QMessageBox,
-    QMenu)
+    QLineEdit)
 from app.database.database import SessionLocal
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
@@ -14,8 +14,7 @@ from app.services.credential_service import (
     delete_credential, 
     search_credentials)
 from app.services.category_services import (
-    get_categories,
-    delete_category)
+    get_categories)
 from app.views.add_category import category_window
 from app.utils.ui_loader import load_ui
 from app.utils.auto_lock import (
@@ -24,9 +23,11 @@ from app.utils.auto_lock import (
     ActivityFilter)
 from app.utils.dashboard_helper import (
     display_credentials, 
-    display_password_strength)
+    display_password_strength,
+    refresh_credential_list)
 from app.utils.password_strength import check_password_strength
-from app.utils.password_toggle import wire_password_toggle
+from app.utils.password_toggle import wire_password_toggle, reset_password_toggle
+from app.utils.category_menu import setup_category_context_menu
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -40,6 +41,9 @@ def dashboard_window(session):
         window.passwordField,
         window.revealButton
     )
+    load_category(window)
+    refresh_credential_list(window)
+    setup_category_context_menu(window)
     # copy username
     window.copyUsernameButton.clicked.connect(
         lambda: QApplication.clipboard().setText(
@@ -66,9 +70,7 @@ def dashboard_window(session):
     
     # add the current vault name in dashboard
     window.vaultNameLabel.setText(f"Vault: {session.vault.name}")
-    
-    load_category(window)
-    
+
     window.detailStack.setCurrentIndex(0)
     
     window.credentialList.currentRowChanged.connect(
@@ -77,14 +79,6 @@ def dashboard_window(session):
     
     window.categoryList.currentRowChanged.connect(
         lambda row: category_selected(window, row)
-    )
-    
-    window.categoryList.setContextMenuPolicy(
-        Qt.CustomContextMenu
-    )
-    
-    window.categoryList.customContextMenuRequested.connect(
-        lambda position: show_category_menu(window, position)
     )
     
     window.newVaultButton.clicked.connect(
@@ -138,6 +132,14 @@ def load_credentials(window):
     display_credentials(window, credentials)
 
 def load_category(window):
+    selected_category_id = None
+    current_item = window.categoryList.currentItem()
+    
+    if current_item is not None:
+        category = current_item.data(Qt.UserRole)
+        if category is not None:
+            selected_category_id = category.category_id
+    
     with SessionLocal() as db:
         categories = get_categories(db, window.session)
     
@@ -151,6 +153,14 @@ def load_category(window):
         item.setData(Qt.UserRole, category)
         window.categoryList.addItem(item)
 
+    if selected_category_id is not None:
+        for row in range(window.categoryList.count()):
+            item = window.categoryList.item(row)
+            category = item.data(Qt.UserRole)
+            if category is not None and category.category_id == selected_category_id:
+                window.categoryList.setCurrentRow(row)
+                return
+    window.categoryList.setCurrentRow(0)
 
 def search_credential_list(window):
     search_text = window.searchInput.text().strip()
@@ -189,7 +199,7 @@ def open_credential_form(window):
     window.credential_form = credential_window(window.session)
     
     def after_credential_form():
-        load_credentials(window)
+        refresh_credential_list(window)
         window.credentialList.clearSelection()
         window.detailStack.setCurrentIndex(0)
         
@@ -242,6 +252,10 @@ def show_credential_details(window, row):
     window.websiteLabel.setText(credential.website or "")
     window.usernameField.setText(username)
     window.passwordField.setText(password)
+    reset_password_toggle(
+        window.passwordField,
+        window.revealButton
+    )
     window.notesField.setPlainText(notes)
     
     window.detailStack.setCurrentIndex(1)
@@ -282,7 +296,7 @@ def open_credential_edit(window):
         )
     
     def refresh_after_edit():
-        load_credentials(window)
+        refresh_credential_list(window)
         window.credentialList.setCurrentRow(row)
         
     window.edit_credential.finished.connect(
@@ -335,63 +349,5 @@ def delete_selected_credential(window):
             window.session,
             credential
         )
-    load_credentials(window)
+    refresh_credential_list(window)
     window.detailStack.setCurrentIndex(0)
-
-
-def show_category_menu(window, position):
-    item = window.categoryList.itemAt(position)
-    
-    if item is None:
-        return
-    
-    category = item.data(Qt.UserRole)
-    
-    if category is None:
-        return
-    
-    menu = QMenu(window)
-    
-    edit_action = menu.addAction("Edit Category")
-    delete_action = menu.addAction("Delete Category")
-
-    action = menu.exec(
-        window.categoryList.mapToGlobal(position)
-    )
-    
-    if action == edit_action:
-        edit_category(window, category)
-    elif action == delete_action:
-        delete_selected_category(window, category)
-
-def edit_category(window, category):
-    window.edit_category_window = category_window(
-        window.session,
-        category
-    )
-    
-    window.edit_category_window.finished.connect(
-        lambda: load_category(window)
-    )
-    window.edit_category_window.show()
-
-def delete_selected_category(window, category):
-    reply = QMessageBox.question(
-        window,
-        "Delete Category",
-        f"Are you sure you want to delete category: {category.name}?",
-        QMessageBox.Yes | QMessageBox.No,
-        QMessageBox.No
-    )
-
-    if reply != QMessageBox.Yes:
-        return
-    
-    with SessionLocal() as db:
-        delete_category(
-            db,
-            window.session,
-            category
-        )
-    load_category(window)
-    window.categoryList.setCurrentRow(0)
