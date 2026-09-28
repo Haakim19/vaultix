@@ -25,3 +25,8 @@ def wire_password_toggle(line_edit: QLineEdit, button: QToolButton) -> None:
             button.setToolTip("Show password")
 
     button.clicked.connect(toggle)
+
+def reset_password_toggle(line_edit: QLineEdit, button: QToolButton) -> None:
+    line_edit.setEchoMode(QLineEdit.Password)
+    button.setIcon(QIcon(str(ICON_SHOW)))
+    button.setToolTip("Show password")
