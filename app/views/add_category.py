@@ -1,15 +1,25 @@
 from app.utils.ui_loader import load_ui, show_message
 from app.database.database import SessionLocal
-from app.services.category_services import add_category, category_name_exists
+from app.services.category_services import (
+    add_category, 
+    update_category,
+    category_name_exists)
 
 
-def category_window(session):
+def category_window(session, category = None):
     window = load_ui("ui/add_category.ui")
     
     if window is None:
         raise RuntimeError("Failed to load UI file: ui/add_category.ui")
     
     window.session = session
+    window.category = category
+    
+    if category is not None:
+        window.nameInput.setText(category.name)
+        window.descriptionInput.setPlainText(
+            category.description or ""
+        )
     
     window.saveButton.clicked.connect(
         lambda: save_category(window, session)
@@ -34,19 +44,33 @@ def save_category(window, session):
     
     try:
         with SessionLocal() as db:
-            if category_name_exists(db, session, name):
-                show_message(
-                    window,
-                    "A category with this name already exists.",
-                    is_error= True
+            if window.category is None:
+                if category_name_exists(db, session, name):
+                    show_message(
+                        window,
+                        "A category with this name already exists.",
+                        is_error= True
+                    )
+                    return
+                add_category(
+                    db,
+                    window.session,
+                    name,
+                    description,
                 )
-                return
-            add_category(
-                db,
-                window.session,
-                name,
-                description
-            )
+                message = "New Category Added"
+            else:
+                update_category(
+                    db,
+                    window.session,
+                    window.category,
+                    name,
+                    description,
+                )
+                message = "Category Updated"
+        
+            
+
     except Exception as e:
         show_message(
             window,
@@ -56,7 +80,7 @@ def save_category(window, session):
     
     show_message(
         window,
-        "New Category added"
+        message
     )
     
     window.close()
