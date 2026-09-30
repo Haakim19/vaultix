@@ -2,8 +2,7 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QApplication, 
     QListWidgetItem, 
-    QMessageBox,
-    QLineEdit)
+    QMessageBox)
 from app.database.database import SessionLocal
 from app.views.credential_form import credential_window
 from app.views.credential_edit import credential_edit_window
@@ -23,7 +22,6 @@ from app.utils.auto_lock import (
     ActivityFilter)
 from app.utils.dashboard_helper import (
     display_credentials,
-    display_search_results,
     display_password_strength,
     refresh_credential_list)
 from app.utils.password_strength import check_password_strength
@@ -164,12 +162,7 @@ def load_category(window):
     window.categoryList.setCurrentRow(0)
 
 def search_credential_list(window):
-    
-    current_credential = getattr(
-        window,
-        "current_credential",
-        None
-    )
+    window.detailStack.setCurrentIndex(0)
     
     search_text = window.searchInput.text().strip()
     
@@ -178,16 +171,21 @@ def search_credential_list(window):
     category_id = category.category_id if category else None
     
     if not search_text:
-        if category_id is None:
-            load_credentials(window)
-        else:
-            with SessionLocal() as db:
-                credentials = get_credentials_by_category(
-                    db,
-                    window.session,
-                    category_id
-                )
-            display_search_results(window, credentials, current_credential)
+        credential = getattr(window, "current_credential", None)
+        
+        refresh_credential_list(window)
+        
+        if credential is not None:
+            for row in range(window.credentialList.count()):
+                item = window.credentialList.item(row)
+                item_credential = item.data(Qt.UserRole)
+                
+                if (
+                    item_credential is not None
+                    and item_credential.credential_id == credential.credential_id
+                    ):
+                    window.credentialList.setCurrentRow(row)
+                    return
         return
     
     with SessionLocal() as db:
@@ -197,18 +195,8 @@ def search_credential_list(window):
             search_text,
             category_id
         )
-    display_search_results(window, credentials, current_credential)
+    display_credentials(window, credentials)
     
-    if current_credential is None:
-        return
-    
-    for row in range(window.credentialList.count()):
-        item = window.credentialList.item(row)
-        credential = item.data(Qt.UserRole)
-        
-        if credential.credential_id == current_credential.credential_id:
-            window.credentialList.setCurrentRow(row)
-            return
 
 def open_credential_form(window):
     window.credentialList.clearSelection()
