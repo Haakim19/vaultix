@@ -22,7 +22,8 @@ from app.utils.auto_lock import (
     remove_activity_filter,
     ActivityFilter)
 from app.utils.dashboard_helper import (
-    display_credentials, 
+    display_credentials,
+    display_search_results,
     display_password_strength,
     refresh_credential_list)
 from app.utils.password_strength import check_password_strength
@@ -163,6 +164,13 @@ def load_category(window):
     window.categoryList.setCurrentRow(0)
 
 def search_credential_list(window):
+    
+    current_credential = getattr(
+        window,
+        "current_credential",
+        None
+    )
+    
     search_text = window.searchInput.text().strip()
     
     category_item = window.categoryList.currentItem()
@@ -179,7 +187,7 @@ def search_credential_list(window):
                     window.session,
                     category_id
                 )
-            display_credentials(window, credentials)
+            display_search_results(window, credentials, current_credential)
         return
     
     with SessionLocal() as db:
@@ -189,8 +197,18 @@ def search_credential_list(window):
             search_text,
             category_id
         )
+    display_search_results(window, credentials, current_credential)
     
-    display_credentials(window, credentials)
+    if current_credential is None:
+        return
+    
+    for row in range(window.credentialList.count()):
+        item = window.credentialList.item(row)
+        credential = item.data(Qt.UserRole)
+        
+        if credential.credential_id == current_credential.credential_id:
+            window.credentialList.setCurrentRow(row)
+            return
 
 def open_credential_form(window):
     window.credentialList.clearSelection()
@@ -229,9 +247,10 @@ def show_credential_details(window, row):
         return
 
     item = window.credentialList.item(row)
-
     credential = item.data(Qt.UserRole)
-
+    
+    window.current_credential = credential
+    
     username, password, notes = decrypt_credential(
         credential,
         window.session
@@ -265,6 +284,7 @@ def category_selected(window, row):
     if row < 0:
         return
     
+    window.current_credential = None
     window.credentialList.clearSelection()
     window.detailStack.setCurrentIndex(0)
     
@@ -287,9 +307,15 @@ def open_credential_edit(window):
     row = window.credentialList.currentRow()
     if row < 0:
         return
+
+    credential = getattr(
+        window,
+        "current_credential",
+        None
+    )
+    if credential is None:
+        return
     
-    item = window.credentialList.item(row)
-    credential = item.data(Qt.UserRole)
     window.edit_credential = credential_edit_window(
         window.session,
         credential
