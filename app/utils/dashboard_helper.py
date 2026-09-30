@@ -23,30 +23,6 @@ def display_credentials(window, credentials):
     
     window.credentialList.blockSignals(False)
 
-
-def display_search_results(window, credentials, selected_credential=None):
-    window.credentialList.blockSignals(True)
-
-    window.credentialList.clear()
-
-    selected_row = -1
-
-    for row, credential in enumerate(credentials):
-        item = QListWidgetItem(credential.title)
-        item.setData(Qt.UserRole, credential)
-        window.credentialList.addItem(item)
-
-        if (
-            selected_credential is not None
-            and credential.credential_id == selected_credential.credential_id
-        ):
-            selected_row = row
-
-    if selected_row != -1:
-        window.credentialList.setCurrentRow(selected_row)
-
-    window.credentialList.blockSignals(False)
-
 def load_categories(window):
     with SessionLocal() as db:
         categories = get_categories(
