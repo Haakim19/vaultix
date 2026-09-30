@@ -10,7 +10,7 @@ def add_credentials(
     website,
     username,
     password,
-    notes = "",
+    notes="",
     category_id = None
 ):
     encrypted_username, username_nonce = encrypt_data(
@@ -127,14 +127,14 @@ def update_credential(
     username,
     password,
     notes,
-    category_id = None):
+    category_id=None):
     
     if credential.vault_id != session.vault.vault_id:
         raise ValueError("Credential does not belong to this vault")
     
     db.add(credential)
     
-    orginal_username, orginal_password, orginal_notes = decrypt_credential(
+    original_username, original_password, original_notes = decrypt_credential(
         credential,
         session
     )
@@ -145,7 +145,7 @@ def update_credential(
     credential.website = website.strip() if website else None
 
     # Check if the old username/ password/ notes and new are same if not it updates with old ones
-    if orginal_username != username:
+    if original_username != username:
         new_encrypted_username, new_username_nonce = encrypt_data(
             username,
             session.vault_key
@@ -153,7 +153,7 @@ def update_credential(
         credential.encrypted_username = new_encrypted_username
         credential.username_nonce = new_username_nonce
     
-    if orginal_password != password:
+    if original_password != password:
         new_encrypted_password, new_password_nonce = encrypt_data(
             password,
             session.vault_key
@@ -161,7 +161,7 @@ def update_credential(
         credential.encrypted_password = new_encrypted_password
         credential.password_nonce = new_password_nonce
 
-    if orginal_notes != notes:
+    if original_notes != notes:
         # check whether notes have any vaule and encrypt it
         if notes:    
             new_encrypted_notes, new_notes_nonce = encrypt_data(

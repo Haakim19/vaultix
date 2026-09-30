@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from app.models.models import Category
 
-def add_category(db, session, name, description = ""):
+def add_category(db, session, name, description=""):
     name = name.strip()
     
     if not name:
@@ -33,7 +33,7 @@ def get_categories(db, session):
 
 def delete_category(db, session, category: Category):
     if category.vault_id != session.vault.vault_id:
-        raise ValueError("Category does not belong to ths vault")
+        raise ValueError("Category does not belong to this vault")
     
     db.add(category)
     db.delete(category)

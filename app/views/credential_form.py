@@ -40,7 +40,7 @@ def save_credential(window):
     if not title:
         show_message(
             window,
-            "title is required",
+            "Title is required.",
             is_error=True
         )
         return
@@ -48,7 +48,7 @@ def save_credential(window):
     if not username:
         show_message(
             window,
-            "User Name is required",
+            "User Name is required.",
             is_error=True
         )
         return
@@ -56,7 +56,7 @@ def save_credential(window):
     if not password:
         show_message(
             window,
-            "Password is required",
+            "Password is required.",
             is_error=True
         )
         return
@@ -77,13 +77,13 @@ def save_credential(window):
     except Exception as e:
         show_message(
             window,
-            f"Faild to save credentials: {e}",
+            f"Failed to save credentials: {e}",
             is_error=True
         )
     
     show_message(
         window,
-        "Credential saved succesfully"
+        "Credential saved successfully."
     )
     
     window.close()

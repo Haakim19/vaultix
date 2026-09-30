@@ -349,7 +349,7 @@ def delete_selected_credential(window):
     reply = QMessageBox.question(
         window,
         "Delete Credential",
-        f"Are you sure you want to delete: {credential.title}",
+        f"Are you sure you want to delete: {credential.title}?",
         QMessageBox.Yes | QMessageBox.No,
         QMessageBox.No 
     )

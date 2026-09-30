@@ -38,7 +38,7 @@ def save_category(window, session):
     if not name:
         show_message(
             window,
-            "category name is required"
+            "Category name is required."
         )
         return
     
@@ -58,7 +58,7 @@ def save_category(window, session):
                     name,
                     description,
                 )
-                message = "New Category Added"
+                message = "New Category added successfully."
             else:
                 update_category(
                     db,
@@ -67,14 +67,14 @@ def save_category(window, session):
                     name,
                     description,
                 )
-                message = "Category Updated"
+                message = "Category updated successfully."
         
             
 
     except Exception as e:
         show_message(
             window,
-            f"Faild to add new category: {e}"
+            f"Failed to save new category: {e}"
         )
         return
     

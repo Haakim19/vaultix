@@ -63,13 +63,13 @@ def save_credential_changes( window, credential):
     category_id = window.categoryInput.currentData()
     
     if not title:
-        show_message(window, "Title is required", is_error=True)
+        show_message(window, "Title is required.", is_error=True)
         return
     if not username:
-        show_message(window, "User Name is required", is_error=True)
+        show_message(window, "Username is required.", is_error=True)
         return
     if not password:
-        show_message(window, "Password is required", is_error=True)
+        show_message(window, "Password is required.", is_error=True)
         return
     
     try:
@@ -88,10 +88,10 @@ def save_credential_changes( window, credential):
     except Exception as e:
         show_message(
             window,
-            f"Faild to Update: {e}",
+            f"Failed to update credential: {e}",
             is_error= True
         )
         return
         
-    show_message(window, "Credentials Updated Successfully")
+    show_message(window, "Credentials updated successfully.")
     window.close()

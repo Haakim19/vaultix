@@ -37,11 +37,11 @@ def validate_data(window):
     confirm_password = window.confirmPasswordInput.text()
 
     error =(
-        "Vault name is empty" if not vault_name else
-        "Password is empty" if not password else
-        "Password must be at least 8 characters" if len(password) < 8 else
-        "Confirm password is empty" if not confirm_password else
-        "Password do not match" if confirm_password != password else 
+        "Vault name is required." if not vault_name else
+        "Password is required." if not password else
+        "Password must be at least 8 characters." if len(password) < 8 else
+        "Confirm password is empty." if not confirm_password else
+        "Passwords do not match." if confirm_password != password else 
         None
     )
     if error:
@@ -66,7 +66,7 @@ def validate_data(window):
             
     except Exception as e:
         # Handle database error
-        show_message(window, f"Failed to create vault {e}", is_error= True)
+        show_message(window, f"Failed to create vault: {e}", is_error= True)
         return
     
     session = VaultSession(created_vault, vault_key)

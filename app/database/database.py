@@ -7,7 +7,8 @@ class Base(DeclarativeBase):
 engine = create_engine("sqlite:///vaultix.db")
 
 # creating the session factory using engine
-SessionLocal = sessionmaker(engine)
+SessionLocal = sessionmaker(
+    bind=engine,
+    expire_on_commit=False)
 
-from app.models.models import  Vault, Category, Credential
 Base.metadata.create_all(engine)
