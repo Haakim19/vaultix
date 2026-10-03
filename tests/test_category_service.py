@@ -93,4 +93,32 @@ def test_get_categorys(testing_session):
     
     db.close()
     
-        
+def test_get_categories_vault_isolation(testing_session):
+    db = testing_session()
+
+    personal_vault, personal_key = create_vault(
+        db, "Personal", "personal123"
+    )
+    work_vault, work_key = create_vault(
+        db, "Work", "work123"
+    )
+
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+
+    add_category(db, personal_session, "Social Media")
+    add_category(db, personal_session, "Finance")
+    add_category(db, work_session, "Development")
+    
+    personal_category = get_categories(db, personal_session)
+    work_category = get_categories(db, work_session)
+    
+    assert [category.name for category in personal_category] == [
+        "Finance",
+        "Social Media"
+    ]
+    assert [category.name for category in work_category] == [
+        "Development"
+    ]
+    
+    db.close()
