@@ -145,3 +145,35 @@ def test_get_credentials_vault_isolation(testing_session):
     db.close()
 
 
+def test_search_credentials(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "haakim", "github123"
+    )
+    add_credentials(
+        db, session,
+        "Google", "https://google.com",
+        "haakim@gmail.com", "google123"
+    )
+    add_credentials(
+        db, session,
+        "GitLab", "https://gitlab.com",
+        "haakim", "gitlab123"
+    )
+    
+    result = search_credentials(db, session, "git")
+    
+    assert len(result) == 2
+    assert {credential.title for credential in result} == {
+        "GitHub", "GitLab"
+    }
+    
+    db.close()
+
+
