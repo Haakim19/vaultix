@@ -210,3 +210,36 @@ def test_get_credentials_by_category(testing_session):
     db.close()
 
 
+def test_update_credential(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    credential = add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "old_user", "old_password",
+        notes="Old notes"
+    )
+
+    from app.services.credential_service import update_credential
+
+    updated = update_credential(
+        db, session, credential,
+        title="GitHub Updated",
+        website="https://github.com",
+        username="new_user",
+        password="new_password",
+        notes="New notes"
+    )
+
+    username, password, notes = decrypt_credential(updated, session)
+
+    assert updated.title == "GitHub Updated"
+    assert username == "new_user"
+    assert password == "new_password"
+    assert notes == "New notes"
+
+    db.close()
+
