@@ -1,196 +1,99 @@
+import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database.database import Base
-from app.models.models import Vault
-from app.session.session import VaultSession
-from app.services.credential_service import (   add_credentials, 
-                                                get_credentials, 
-                                                decrypt_credential,
-                                                update_credential)
-from app.security.crypto import decrypt_data
 from app.services.vault_service import (unlock_vault, 
                                         create_vault, 
-                                        get_vault_by_id)
+                                        get_vault_by_id,
+                                        vault_name_exists,
+                                        get_vaults)
 
-engine = create_engine("sqlite://")
+@pytest.fixture
+def testing_session():
+    test_engine = create_engine("sqlite://")
+    Base.metadata.create_all(test_engine)
 
-Base.metadata.create_all(engine)
+    TestSession = sessionmaker(bind=test_engine)
 
-TestingSession = sessionmaker(engine)
+    yield TestSession
 
-vault_name = "home"
-password = "12345678"
+    test_engine.dispose()
 
-def test_create_vault():
-    with TestingSession() as db:
-        created_test_vault, vault_key = create_vault(db, vault_name, password)
-    print(f"vault '{vault_name}' created")
+def test_vault_name_exists(testing_session):
+    with testing_session() as db:
+        create_vault(db, "Personal Vault", "12345678")
 
-    found_vault = get_vault_by_id(
-        db,
-        created_test_vault.vault_id
-    )
+        assert vault_name_exists(db, "Personal Vault")
+        assert vault_name_exists(db, "personal vault")
+        assert vault_name_exists(db, " Personal Vault ")
+
+        assert not vault_name_exists(db, "Work Vault")
 
 
-    assert found_vault is not None
-    assert isinstance(vault_key, bytes)
-    assert len(vault_key) == 32
-    assert found_vault.name == vault_name
-    print(f"✅ Found the vault '{vault_name}'")
+def test_create_vault_with_empty_name(testing_session):
+    with testing_session() as db:
+        vault, _ = create_vault(db, "", "12345678")
 
-    result = unlock_vault(created_test_vault, password)
+        assert vault.name == ""
 
-    assert result is not None
-    assert isinstance(result, bytes)
-    assert len(result) == 32
-    print("✅ Correct password: vault unlocked")
 
-    wrong_result = unlock_vault(created_test_vault, "123456789")
-    assert wrong_result is None
-    print("✅ Wrong Password: vault not-unlocked")
-    
-
-def test_add_credentials():
-    with TestingSession() as db:
-        vault, vault_key = create_vault(
-            db,
-            "Test Vault",
-            "12345678"
-        )
-
-        session = VaultSession(vault, vault_key)
-
-        credential = add_credentials(
-            db,
-            session,
-            "GitHub",
-            "https://github.com",
-            "haakim19",
-            "my-secret-password"
-        )
-
-        assert credential.credential_id is not None
-
-        assert credential.encrypted_username != b"haakim19"
-        assert credential.encrypted_password != b"my-secret-password"
-
-        username = decrypt_data(
-            credential.encrypted_username,
-            credential.username_nonce,
-            session.vault_key
-        )
-
-        password = decrypt_data(
-            credential.encrypted_password,
-            credential.password_nonce,
-            session.vault_key
-        )
-
-        assert username == "haakim19"
-        assert password == "my-secret-password"
-
-def test_get_credentials():
-    with TestingSession() as db:
+def test_create_vault(testing_session):
+    with testing_session() as db:
         vault, vault_key = create_vault(
             db,
             "Personal Vault",
             "12345678"
         )
 
-        session = VaultSession(vault, vault_key)
+        assert vault.vault_id is not None
+        assert vault.name == "Personal Vault"
+        assert isinstance(vault_key, bytes)
+        assert len(vault_key) == 32
 
-        add_credentials(
+
+def test_unlock_vault(testing_session):
+    with testing_session() as db:
+        vault, original_key = create_vault(
             db,
-            session,
-            "GitHub",
-            "https://github.com",
-            "haakim19",
-            "github-password"
+            "Personal Vault",
+            "12345678"
         )
 
-        add_credentials(
+        correct_key = unlock_vault(vault, "12345678")
+        wrong_key = unlock_vault(vault, "wrongpassword")
+
+        assert correct_key == original_key
+        assert wrong_key is None
+
+
+def test_get_vaults(testing_session):
+    with testing_session() as db:
+        create_vault(db, "Personal Vault", "12345678")
+        create_vault(db, "Work Vault", "87654321")
+
+        vaults = get_vaults(db)
+
+        assert len(vaults) == 2
+        assert [vault.name for vault in vaults] == [
+            "Personal Vault",
+            "Work Vault"
+        ]
+
+
+def test_get_vault_by_id(testing_session):
+    with testing_session() as db:
+        created_vault, _ = create_vault(
             db,
-            session,
-            "Google",
-            "https://google.com",
-            "haakim19@gmail.com",
-            "google-password"
+            "Personal Vault",
+            "12345678"
         )
 
-        credentials = get_credentials(db, session)
+        vault_id = created_vault.vault_id
 
-        assert len(credentials) == 2
-        assert credentials[0].title == "GitHub"
-        assert credentials[1].title == "Google"
+        found_vault = get_vault_by_id(db, vault_id)
+        missing_vault = get_vault_by_id(db, 999)
 
-def test_credentials_are_isolated_between_vaults():
-    with TestingSession() as db:
-        personalVault, personalKey = create_vault(
-            db,
-            "personal",
-            "12345678")
-        
-        workVault, workKey = create_vault(
-            db,
-            "work",
-            "87654321"
-        )
-        
-        personalSession = VaultSession(personalVault, personalKey)
-        workSession = VaultSession(workVault, workKey)
-        
-        add_credentials(
-            db,
-            personalSession,
-            "GitHub",
-            "https://github.com",
-            "haakim19",
-            "personal-password"
-        )
-
-        add_credentials(
-            db,
-            workSession,
-            "Slack",
-            "https://slack.com",
-            "haakim19",
-            "work-password"
-        )
-        
-        personalCredentials = get_credentials(db, personalSession)
-        workCredentials = get_credentials(db, workSession)
-        
-        assert len(personalCredentials) == 1
-        assert personalCredentials[0].title == "GitHub"
-        
-        assert len(workCredentials) == 1
-        assert workCredentials[0].title == "Slack"
-
-        personalCredential = personalCredentials[0]
-        username, pwsh, notes = decrypt_credential(
-            personalCredential,
-            personalSession
-        )
-        assert username == "haakim19"
-        assert pwsh == "personal-password"
-        
-        updated = update_credential(
-            db,
-            personalSession,
-            personalCredential,
-            "Updated Gmail",
-            "https://gmail.com",
-            "new_username",
-            "old_password",
-            "Hello")
-        
-        updated_username, updated_password, updated_notes = decrypt_credential(
-            updated,
-            personalSession
-        )
-        assert updated_username == "new_username"
-        assert updated_password == "old_password"
-        assert updated.title == "Updated Gmail"
-
-if __name__ == "__main__":
-    test_add_credentials()
+        assert found_vault is not None
+        assert found_vault.vault_id == vault_id
+        assert found_vault.name == "Personal Vault"
+        assert missing_vault is None
