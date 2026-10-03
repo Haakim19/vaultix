@@ -177,3 +177,36 @@ def test_search_credentials(testing_session):
     db.close()
 
 
+def test_get_credentials_by_category(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    from app.services.category_services import add_category
+
+    category = add_category(db, session, "Development")
+
+    add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "haakim", "github123",
+        category_id=category.category_id
+    )
+    add_credentials(
+        db, session,
+        "Google", "https://google.com",
+        "haakim@gmail.com", "google123"
+    )
+
+    results = get_credentials_by_category(
+        db, session, category.category_id
+    )
+
+    assert len(results) == 1
+    assert results[0].title == "GitHub"
+    assert results[0].category_id == category.category_id
+
+    db.close()
+
+
