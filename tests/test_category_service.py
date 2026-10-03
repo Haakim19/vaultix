@@ -4,7 +4,9 @@ from sqlalchemy.orm import sessionmaker
 
 from app.database.database import Base
 from app.services.vault_service import create_vault
-from app.services.category_services import add_category
+from app.services.category_services import (
+    add_category,
+    get_categories)
 from app.session.session import VaultSession
 
 
@@ -68,3 +70,27 @@ def test_add_category_with_empty_name(testing_session):
         add_category(db, session, "   ")
 
     db.close()
+
+
+def test_get_categorys(testing_session):
+    db = testing_session()
+    
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    add_category(db, session, "Social Media")
+    add_category(db, session, "Development")
+    add_category(db, session, "Finance")
+
+    categories = get_categories(db, session)
+    
+    assert len(categories) == 3
+    assert [category.name for category in categories] == [
+        "Development",
+        "Finance",
+        "Social Media"
+    ]
+    
+    db.close()
+    
+        
