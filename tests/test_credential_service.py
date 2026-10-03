@@ -243,3 +243,126 @@ def test_update_credential(testing_session):
 
     db.close()
 
+def test_update_credential_preserves_unchanged_encryption(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    credential = add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "haakim", "github123",
+        notes="My account"
+    )
+
+    original_username = credential.encrypted_username
+    original_username_nonce = credential.username_nonce
+    original_password = credential.encrypted_password
+    original_password_nonce = credential.password_nonce
+    original_notes = credential.encrypted_notes
+    original_notes_nonce = credential.notes_nonce
+
+    updated = update_credential(
+        db, session, credential,
+        title="GitHub Updated",
+        website="https://github.com",
+        username="haakim",
+        password="github123",
+        notes="My account"
+    )
+
+    assert updated.encrypted_username == original_username
+    assert updated.username_nonce == original_username_nonce
+    assert updated.encrypted_password == original_password
+    assert updated.password_nonce == original_password_nonce
+    assert updated.encrypted_notes == original_notes
+    assert updated.notes_nonce == original_notes_nonce
+
+    db.close()
+
+def test_delete_credential(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    credential = add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "haakim", "github123"
+    )
+    
+    delete_credential(db, session, credential)
+    
+    credential = get_credentials(db, session)
+    
+    assert len(credential) == 0
+    
+    db.close()
+
+
+def test_delete_credential_from_another_vault(testing_session):
+    db = testing_session()
+
+    personal_vault, personal_key = create_vault(
+        db, "Personal", "personal123"
+    )
+    work_vault, work_key = create_vault(
+        db, "Work", "work123"
+    )
+
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+
+    credential = add_credentials(
+        db, personal_session,
+        "GitHub", "https://github.com",
+        "haakim", "github123"
+    )
+
+    with pytest.raises(ValueError):
+        delete_credential(db, work_session, credential)
+
+    remaining = get_credentials(db, personal_session)
+
+    assert len(remaining) == 1
+    assert remaining[0].title == "GitHub"
+
+    db.close()
+
+def test_update_credential_from_another_vault(testing_session):
+    db = testing_session()
+
+    personal_vault, personal_key = create_vault(
+        db, "Personal", "personal123"
+    )
+    work_vault, work_key = create_vault(
+        db, "Work", "work123"
+    )
+
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+
+    credential = add_credentials(
+        db, personal_session,
+        "GitHub", "https://github.com",
+        "haakim", "github123"
+    )
+    
+    with pytest.raises(ValueError):
+        update_credential(
+            db, work_session, credential,
+            title="Changed",
+            website="https://example.com",
+            username="other_user",
+            password="other_password",
+            notes="Changed notes"
+        )
+    
+    remaining = get_credentials(db, personal_session)
+
+    assert len(remaining) == 1
+    assert remaining[0].title == "GitHub"
+
+    db.close()
