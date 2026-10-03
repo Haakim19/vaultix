@@ -109,3 +109,39 @@ def test_get_credentials(testing_session):
     db.close()
 
 
+def test_get_credentials_vault_isolation(testing_session):
+    db = testing_session()
+
+    personal_vault, personal_key = create_vault(
+        db, "Personal", "personal123"
+    )
+    work_vault, work_key = create_vault(
+        db, "Work", "work123"
+    )
+
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+
+    add_credentials(
+        db, personal_session,
+        "GitHub", "https://github.com",
+        "personal_user", "personal_pass"
+    )
+    add_credentials(
+        db, work_session,
+        "Company Portal", "https://company.com",
+        "work_user", "work_pass"
+    )
+
+    personal_credentials = get_credentials(db, personal_session)
+    work_credentials = get_credentials(db, work_session)
+
+    assert len(personal_credentials) == 1
+    assert personal_credentials[0].title == "GitHub"
+
+    assert len(work_credentials) == 1
+    assert work_credentials[0].title == "Company Portal"
+
+    db.close()
+
+
