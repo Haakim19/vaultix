@@ -56,3 +56,31 @@ def test_add_credentials(testing_session):
         assert credential.encrypted_notes is None
         assert credential.notes_nonce is None
 
+def test_decrypt_credential(testing_session):
+    with testing_session() as db:
+        vault, vault_key = create_vault(
+            db, 
+            "Personal Vault",
+            "12345678"
+        )
+        session = VaultSession(vault, vault_key)
+        
+        credential = add_credentials(
+            db,
+            session,
+            title="GitHub",
+            website="https://github.com",
+            username="haakim19",
+            password="my-secret-password",
+            notes="My GitHub account"
+        )
+        
+        username, password, notes = decrypt_credential(
+            credential,
+            session
+        )
+        
+        assert username == "haakim19"
+        assert password == "my-secret-password"
+        assert notes == "My GitHub account"
+
