@@ -84,3 +84,28 @@ def test_decrypt_credential(testing_session):
         assert password == "my-secret-password"
         assert notes == "My GitHub account"
 
+def test_get_credentials(testing_session):
+    db = testing_session()
+    
+    vault, vault_key = create_vault(db, "Personal", "12345678")
+    session = VaultSession(vault, vault_key)
+    
+    add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "haakim", "github123"
+    )
+    add_credentials(
+        db, session,
+        "Google", "https://google.com",
+        "haakim@gmail.com", "google123"
+    )
+    credentials = get_credentials(db, session)
+    
+    assert len(credentials) == 2
+    assert credentials[0].title == "GitHub"
+    assert credentials[1].title == "Google"
+    
+    db.close()
+
+
