@@ -2,6 +2,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
+from app.models import models
 from app.database.database import SessionLocal
 from app.services.vault_service import any_vault_exist
 
