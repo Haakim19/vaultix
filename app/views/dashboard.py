@@ -116,6 +116,7 @@ def lock_vault(window):
     window.autoLockTimer.stop()
     remove_activity_filter(window)
     
+    window.session.clear()
     window.session = None
     
     window.login = login_window()
