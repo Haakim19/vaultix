@@ -165,3 +165,66 @@ def test_category_name_exists_vault_isolation(testing_session):
     ) is False
 
     db.close()
+
+def test_update_category(testing_session):
+    db = testing_session()
+    
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    category = add_category(
+        db, session, "Development", "Old description"
+    )
+    
+    updated = update_category(
+        db, session, category,
+        name = "Programming",
+        description= "New description"    
+    )
+    
+    assert updated.category_id == category.category_id
+    assert updated.name == "Programming"
+    assert updated.description == "New description"
+    
+    db.close()
+
+
+def test_update_category_trims_whitespace(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    category = add_category(db, session, "Development")
+
+    updated = update_category(
+        db, session, category,
+        name="  Programming  ",
+        description="  Coding accounts  "
+    )
+
+    assert updated.name == "Programming"
+    assert updated.description == "Coding accounts"
+
+    db.close()
+
+
+def test_update_category_with_empty_name(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    category = add_category(db, session, "Development")
+
+    with pytest.raises(
+        ValueError,
+        match="Category name cannot be empty"
+    ):
+        update_category(
+            db, session, category,
+            name="   ",
+            description="Some description"
+        )
+
+    db.close()
