@@ -8,7 +8,8 @@ from app.services.category_services import (
     add_category,
     get_categories,
     category_name_exists,
-    update_category)
+    update_category,
+    delete_category)
 from app.session.session import VaultSession
 
 
@@ -227,4 +228,54 @@ def test_update_category_with_empty_name(testing_session):
             description="Some description"
         )
 
+    db.close()
+
+def test_update_category_from_another_vault(testing_session):
+    db = testing_session()
+
+    personal_vault, personal_key = create_vault(
+        db, "Personal", "personal123"
+    )
+    work_vault, work_key = create_vault(
+        db, "Work", "work123"
+    )
+
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+
+    category = add_category(
+        db, personal_session, "Development"
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Category does not belong to this vault"
+    ):
+        update_category(
+            db, work_session, category,
+            name="Changed",
+            description="Changed description"
+        )
+
+    categories = get_categories(db, personal_session)
+
+    assert len(categories) == 1
+    assert categories[0].name == "Development"
+
+    db.close()
+
+def test_delete_category(testing_session):
+    db = testing_session()
+    
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    category = add_category(db, session, "Development")
+    
+    delete_category(db, session, category)
+    
+    categories = get_categories(db, session)
+    
+    assert len(categories) == 0
+    
     db.close()
