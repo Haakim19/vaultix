@@ -279,3 +279,31 @@ def test_delete_category(testing_session):
     assert len(categories) == 0
     
     db.close()
+
+
+def test_delete_category_from_another_vault(testing_session):
+    db = testing_session()
+    
+    personal_vault, personal_key = create_vault(db, "Personal", "pesonal123")
+    work_vault, work_key = create_vault(db, "Work", "work123")
+    
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+    
+    category = add_category(
+        db, personal_session, "Development"
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Category does not belong to this vault"
+    ):
+        delete_category(db, work_session, category)
+    
+    categories = get_categories(db, personal_session)
+    
+    assert len(categories) == 1
+    assert categories[0].name == "Development"
+    
+    db.close()
+    
