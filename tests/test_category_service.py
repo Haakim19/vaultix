@@ -7,7 +7,8 @@ from app.services.vault_service import create_vault
 from app.services.category_services import (
     add_category,
     get_categories,
-    category_name_exists)
+    category_name_exists,
+    update_category)
 from app.session.session import VaultSession
 
 
@@ -137,5 +138,30 @@ def test_category_name_exists(testing_session):
     assert category_name_exists(db, session, "development") is True
     assert category_name_exists(db, session, "  Development  ") is True
     assert category_name_exists(db, session, "Finance") is False
+
+    db.close()
+
+def test_category_name_exists_vault_isolation(testing_session):
+    db = testing_session()
+
+    personal_vault, personal_key = create_vault(
+        db, "Personal", "personal123"
+    )
+    work_vault, work_key = create_vault(
+        db, "Work", "work123"
+    )
+
+    personal_session = VaultSession(personal_vault, personal_key)
+    work_session = VaultSession(work_vault, work_key)
+
+    add_category(db, personal_session, "Development")
+
+    assert category_name_exists(
+        db, personal_session, "Development"
+    ) is True
+
+    assert category_name_exists(
+        db, work_session, "Development"
+    ) is False
 
     db.close()
