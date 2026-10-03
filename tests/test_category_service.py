@@ -10,6 +10,10 @@ from app.services.category_services import (
     category_name_exists,
     update_category,
     delete_category)
+from app.services.credential_service import (
+    add_credentials,
+    get_credentials
+)
 from app.session.session import VaultSession
 
 
@@ -306,4 +310,29 @@ def test_delete_category_from_another_vault(testing_session):
     assert categories[0].name == "Development"
     
     db.close()
+
+
+def test_delete_category_preserves_credentials(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    category = add_category(db, session, "Development")
+
+    add_credentials(
+        db, session,
+        "GitHub", "https://github.com",
+        "haakim", "github123",
+        category_id=category.category_id
+    )
+
+    delete_category(db, session, category)
+
+    credentials = get_credentials(db, session)
     
+    assert len(credentials) == 1
+    assert credentials[0].title == "GitHub"
+    assert credentials[0].category_id is None
+    
+    db.close()
