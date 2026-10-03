@@ -38,3 +38,33 @@ def test_add_category(testing_session):
     assert category.description == "Programming accounts"
 
     db.close()
+
+
+def test_add_category_trims_whitespace(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    category = add_category(
+        db, session,
+        "  Development  ",
+        "  Programming accounts  "
+    )
+
+    assert category.name == "Development"
+    assert category.description == "Programming accounts"
+
+    db.close()
+
+
+def test_add_category_with_empty_name(testing_session):
+    db = testing_session()
+
+    vault, vault_key = create_vault(db, "Personal", "master123")
+    session = VaultSession(vault, vault_key)
+
+    with pytest.raises(ValueError, match="Category name cannot be empty"):
+        add_category(db, session, "   ")
+
+    db.close()
