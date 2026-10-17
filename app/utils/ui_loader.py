@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 
-THEME_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "ui" / "theme.qss"
+THEME_PATH = pathlib.Path(__file__).resolve().parent.parent.parent / "ui" / "themes.qss"
 
 
 def _theme_text() -> str:
