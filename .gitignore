@@ -7,6 +7,7 @@ wheels/
 *.egg-info
 python.toml
 .python-version
+Vaultix.spec
 # Virtual environments
 .venv
 # database file
@@ -15,3 +16,4 @@ vaultix1.db
 
 # backup file
 ui/_backup
+vaultix.db.backup
