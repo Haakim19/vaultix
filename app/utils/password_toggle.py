@@ -1,11 +1,11 @@
-from pathlib import Path
 
 from PySide6.QtWidgets import  QLineEdit, QToolButton
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
+from app.utils.ui_loader import resource_path
 
-ICON_SHOW = Path("ui/icons/Show.svg")
-ICON_HIDE = Path("ui/icons/Hide.svg")
+ICON_SHOW = resource_path("ui/icons/Show.svg")
+ICON_HIDE = resource_path("ui/icons/Hide.svg")
 
 
 def wire_password_toggle(line_edit: QLineEdit, button: QToolButton) -> None:
