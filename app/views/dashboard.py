@@ -27,6 +27,7 @@ from app.utils.dashboard_helper import (
 from app.utils.password_strength import check_password_strength
 from app.utils.password_toggle import wire_password_toggle, reset_password_toggle
 from app.utils.category_menu import setup_category_context_menu
+from app.utils.copy_icon import setup_copy_icon
 
 def dashboard_window(session):
     window = load_ui("ui/dashboard.ui")
@@ -40,9 +41,14 @@ def dashboard_window(session):
         window.passwordField,
         window.revealButton
     )
+
+    setup_copy_icon(window.copyUsernameButton)
+    setup_copy_icon(window.copyPasswordButton)
+    
     load_category(window)
     refresh_credential_list(window)
     setup_category_context_menu(window)
+
     # copy username
     window.copyUsernameButton.clicked.connect(
         lambda: QApplication.clipboard().setText(
